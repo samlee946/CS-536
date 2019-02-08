@@ -1,0 +1,153 @@
+\documentclass[letter, 12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{hyperref}
+\usepackage{algorithmic}
+\usepackage{eqparbox}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{mathtools}
+
+\author{Shengjie Li}
+\title{CS 536 : Estimation Problems}
+
+\pagestyle{fancy}
+\fancyhf{} 
+\lhead{Shengjie Li \\ RUID: 188008047}
+\cfoot{\thepage} 
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headwidth}{\textwidth}
+\renewcommand\algorithmiccomment[1]{%
+	\hfill\#\ \eqparbox{COMMENT}{#1}%
+}
+\newlist{subquestion}{enumerate}{1}
+\setlist[subquestion, 1]{label = \alph*)}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength\parindent{0pt}
+
+% margin adjustment
+\addtolength{\textwidth}{1in}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\setlength\parindent{0cm}
+
+\begin{document}
+	\centerline{\textbf{CS 536 : Estimation Problems}}
+	\subsection*{\textbf{Uniform Estimators}}
+	\par{Let $ X_1 , X_2 , \dots , X_n $ be i.i.d. random variables, uniformly distributed on $ [0, L] $ (i.e., with density $ 1/L $ on this interval). In the posted notes on estimation, it is shown that the method of moments and maximum likelihood estimators for $ L $ are given by}
+	\begin{equation}
+		\begin{aligned}
+			\hat{L}_{\text{MOM}} &= 2 \overline{X}_n \\
+			\hat{L}_{\text{MLE}} &= \max_{i=1,\dots,n} X_i .
+		\end{aligned}
+	\end{equation}
+	\par{We want to consider the question of which estimator is better. Recall the definition of the mean squared error of an estimator as}
+	\begin{equation}
+		\text{MSE}(\hat{L}) = \mathbb{E}[(\hat{L} - L)^2] . 
+	\end{equation}
+	\textit{Note: the answers to homework zero may also be useful here.}
+	\begin{enumerate}[wide = 0pt, label = \arabic*)]
+		\item {Show that in general, $ \text{MSE}(\hat{\theta}) = \text{bias}(\hat{\theta})^2 + \text{var}(\hat{\theta}) $, where var is the variance, and bias is given by
+		\begin{equation}
+			\text{bias}(\hat\theta) = \theta - \mathbb{E}[\hat{\theta}] .
+		\end{equation}}
+		\par{\textbf{Solution:}}
+		\begin{align*}
+			\text{MSE}(\hat{\theta}) &= \mathbb{E}[(\hat{\theta} - \theta)^2] \\
+			&= \mathbb{E}[\hat{\theta}^2 - 2 \hat{\theta} \theta + \theta^2] \\
+			&= \mathbb{E}[\hat{\theta}^2] - 2 \theta \mathbb{E}[\hat{\theta}] + \theta^2 \\
+			&= \mathbb{E}[\hat{\theta}^2] - 2 \theta \mathbb{E}[\hat{\theta}] + \theta^2 + \mathbb{E}[\hat{\theta}]^2 - \mathbb{E}[\hat{\theta}]^2 \\
+			&= (\theta - \mathbb{E}[\hat{\theta}])^2 + (\mathbb{E}[\hat{\theta}^2] - \mathbb{E}[\hat{\theta}]^2) \\
+			&= \text{bias}(\hat{\theta})^2 + \text{var}(\hat{\theta}) 
+		\end{align*}
+		
+		\item {Show that $ \hat{L}_{\text{MOM}} $ is \textit{unbiased}, but that $ \hat{L}_{\text{MLE}} $ has bias. In general, $ \hat{L}_{\text{MLE}} $ consistently underestimates $ L $ - why?}
+		\par{\textbf{Solution:}}
+		\begin{align*}
+			\text{bias}(\hat{L}_{\text{MOM}}) &= L - \mathbb{E}[\hat{L}_{\text{MOM}}] \\
+			&= L - \mathbb{E}[2 \overline{X}_n] \\
+			&= L - 2 \mathbb{E}[\overline{X}_n] \\
+			&= L - 2 \mathbb{E}[\frac{1}{n}\sum_{i=1}^{n}{X}_i] \\
+			&= L - \frac{2}{n} \sum_{i=1}^{n} \mathbb{E}[{X}_i] \\
+			&= L - \frac{2}{n} n \mathbb{E}[X] \\
+			&= L - 2 \mathbb{E}[X] \\
+			&= 0
+		\end{align*}
+		\par{Thus $ \hat{L}_{\text{MOM}} $ is unbiased.}
+		\par{The cdf of MLE: }
+		\begin{equation*}
+			F(x) = \mathbb{P}(\max_{i=1,\dots,n} X_i \le x) = \mathbb{P}(X_1 \le x, \dots, X_n \le x) = \mathbb{P}(X_1 \le x)\dots\mathbb{P}(X_n \le x) = (\frac{x}{L})^n .
+		\end{equation*}
+		\par{Thus, the pdf of MLE is:}
+		\begin{equation*}
+			f(x) = F'(x) = \frac{n \cdot x^{n-1}}{L^n} .
+		\end{equation*}
+		\par{Therefore, }
+		\begin{align*}
+			\mathbb{E}[\hat{L}_{\text{MLE}}] &= \int_{-\infty}^{\infty} x f(x) dx \\
+			&= \int_{0}^{L} x \frac{n \cdot x^{n-1}}{L^n} dx \\
+			&= \int_{0}^{L} n (\frac{x}{L})^n dx \\
+			&= \frac{n}{n+1} \cdot \frac{x^{n+1}}{L^n} \Big|_0^L \\
+			&= \frac{n}{n+1} \cdot \frac{L^{n+1}}{L^n} \\
+			&= \frac{n}{n+1} L . 
+		\end{align*}
+		\par{We have}
+		\begin{align*}
+			\text{bias}(\hat{L}_{\text{MLE}}) = L - \mathbb{E}[\hat{L}_{\text{MLE}}] 
+			= L - \frac{n}{n+1} L 
+			= \frac{1}{n+1} L 
+			 \ne 0.
+		\end{align*}
+		\par{Thus, $ \hat{L}_{\text{MLE}} $ has bias.}
+		\begin{align*}
+			\mathbb{P}(\hat{L}_{\text{MLE}} \ge L) = \mathbb{P}(\max_{i=1,\dots,n} X_i \ge L) = 0.
+		\end{align*}
+		\par{Thus, $ \hat{L}_{\text{MLE}} $ consistently underestimates $ L $.}
+		
+		\item {Compute the variance of $ \hat{L}_{\text{MOM}} $ and $ \hat{L}_{\text{MLE}} $ .}
+		\par{\textbf{Solution:}}
+		\begin{align*}
+			\text{Var}({X}) &= \mathbb{E}[(X - \mathbb{E}(X))^2] = \mathbb{E}[(X - \frac{X}{2})^2] = \frac{1}{4} \mathbb{E}[X^2] = \frac{1}{4} \int_{-\infty}^{\infty} x^2 f(x) dx = \frac{1}{4} \int_{0}^{L} x^2 \frac{1}{L} dx \\
+			&= \frac{1}{4} \frac{1}{3} \frac{1}{L} x^3 \Big|_0^L = \frac{1}{12 L} L^3 = \frac{L^2}{12}\\
+			\text{Var}(\hat{L}_{\text{MOM}}) &= \text{Var}(2 \overline{X}_n) = 4 \text{Var}(\overline{X}_n) = 4 \text{Var}(\frac{1}{n}\sum_{i=1}^{n} {X}_i) = \frac{4}{n^2} \sum_{i=1}^{n} \text{Var}({X}_i) = \frac{4}{n^2} n \text{Var}({X}) = \frac{L^2}{3 n} \\
+			\text{Var}(\hat{L}_{\text{MLE}}) &= \text{Var}(\max_{i=1,\dots,n} X_i) = \text{Var}({X}) = \frac{L^2}{12}
+		\end{align*}
+		
+		\item {Which one is the better estimator, i.e., which one has the smaller mean squared error?}
+		\begin{align*}
+			\text{MSE}(\hat{L}_{\text{MOM}}) &= \text{bias}(\hat{L}_{\text{MOM}})^2 + \text{var}(\hat{L}_{\text{MOM}}) = \frac{L^2}{3 n} \\
+			\text{MSE}(\hat{L}_{\text{MLE}}) &= \text{bias}(\hat{L}_{\text{MLE}})^2 + \text{var}(\hat{L}_{\text{MLE}}) = (\frac{1}{n+1} L)^2 + \frac{L^2}{12}
+		\end{align*}
+		
+		\item {Experimentally verify your computations in the following way: Taking $ n = 100 $ and $ L = 10 $,}
+		\begin{itemize}
+			\item {For $ j = 1, \dots , 1000 $:}
+			\item {Simulate $ X_1^j , \dots , X_n^j $ and compute values for $ \hat{L}_{\text{MOM}}^j $ and $ \hat{L}_{\text{MLE}}^j $}
+			\item {For $ n = 100, L = 10 $, simulate $ X_1 , \dots , X_n $ , and compute values for $ \hat{L}_{\text{MOM}} $ and $ \hat{L}_{\text{MLE}} $ .}
+			\item {Estimate the mean squared error for each population of estimator values.}
+			\item {How do these estimated MSEs compare to your theoretical MSEs?}
+		\end{itemize}
+	
+		\item {You should have shown that $ \hat{L}_{\text{MLE}} $ , while biased, has a smaller error over all. Why? The mathematical justification for it is above, but is there an explanation for this?}
+		
+		\item {Find $ \mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) $ as a function of $ L, \epsilon, n $. Estimate how many samples I would need to be sure that my estimate was within $ \epsilon $ with probability at least $ \delta $.}
+		
+		\item {Show that
+		\begin{equation}
+			\hat{L} = (\frac{n+1}{n})\max_{i=1,\dots,n}X_i,
+		\end{equation}
+		is an unbiased estimator, and has a smaller MSE still.
+		}
+	\end{enumerate}
+\end{document}
