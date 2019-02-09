@@ -14,6 +14,7 @@
 \usepackage{bm}
 \usepackage{bbm}
 \usepackage{mathtools}
+\usepackage{minted}
 
 \author{Shengjie Li}
 \title{CS 536 : Estimation Problems}
@@ -132,6 +133,7 @@
 		\end{align*}
 		
 		\item {Which one is the better estimator, i.e., which one has the smaller mean squared error?}
+		\par{\textbf{Solution:}}
 		\begin{align*}
 			\text{MSE}(\hat{L}_{\text{MOM}}) &= \text{bias}(\hat{L}_{\text{MOM}})^2 + \text{var}(\hat{L}_{\text{MOM}}) = \frac{L^2}{3 n} \\
 			\text{MSE}(\hat{L}_{\text{MLE}}) &= \text{bias}(\hat{L}_{\text{MLE}})^2 + \text{var}(\hat{L}_{\text{MLE}}) = (\frac{1}{n+1} L)^2 + \frac{n L^2}{(n+2)(n+1)^2} = \frac{2 L^2}{(n+2)(n+1)} 
@@ -147,6 +149,7 @@
 			\item {Estimate the mean squared error for each population of estimator values.}
 			\item {How do these estimated MSEs compare to your theoretical MSEs?}
 		\end{itemize}
+		\par{\textbf{Solution:}}
 		\begin{lstlisting}
 	Estimated MSEs       Theoretival MSEs    
 	0.334586             0.333333            
@@ -154,22 +157,71 @@
 	L^MOM:10.346003012988131
 	L^MLE:9.9819040666619774
 		\end{lstlisting}
+		\par{\textbf{Source code:}}
+		\begin{minted}{python}
+import numpy as np
+
+n = 100
+L = 10
+
+LJMOM_list = []
+LJMLE_list = []
+for j in range(0, 1000):
+    X = np.random.uniform(0, L, n)
+    mu = np.average(X)
+    LJMOM = 2 * mu
+    LJMLE = np.max(X)
+    LJMOM_list.append(LJMOM)
+    LJMLE_list.append(LJMLE)
+mu_MOM = np.average(LJMOM_list)
+mu_MLE = np.average(LJMLE_list)
+var_MOM = np.average(np.array(LJMOM_list) ** 2) - mu_MOM ** 2
+var_MLE = np.average(np.array(LJMLE_list) ** 2) - mu_MLE ** 2
+biasMOM = L - mu_MOM
+biasMLE = L - mu_MLE
+MSEMOM = biasMOM ** 2 + var_MOM
+MSEMLE = biasMLE ** 2 + var_MLE
+
+X = np.random.uniform(0, L, n)
+mu = np.average(X)
+LMOM = 2 * mu
+LMLE = np.max(X)
+print('{:<20s} {:<20s}'.format('Estimated MSEs', 'Theoretival MSEs'))
+print('{:<20f} {:<20f}'.format(MSEMOM, 1.0 * L * L / 3 / n))
+print('{:<20f} {:<20f}'.format(MSEMLE, 2.0 * L * L / (n + 2) / (n + 1)))
+print('L^MOM:' + repr(LMOM))
+print('L^MLE:' + repr(LMLE))
+		\end{minted}
 	
 		\item {You should have shown that $ \hat{L}_{\text{MLE}} $ , while biased, has a smaller error over all. Why? The mathematical justification for it is above, but is there an explanation for this?}
+		\par{\textbf{Solution:}}
+		\par{Because we prefer smaller $ \hat{L} $ than larger $ \hat{L} $ (The same as what we would do if given two estimations 10 and 1000), and $ \hat{L}_{MLE} $ constantly underestimates $ L $, so $ \hat{L}_{MLE} $ performs well in this circumstance.}
 		
 		\item {Find $ \mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) $ as a function of $ L, \epsilon, n $. Estimate how many samples I would need to be sure that my estimate was within $ \epsilon $ with probability at least $ \delta $.}
+		\par{\textbf{Solution:}}
 		\begin{align*}
-			\mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) \ge \delta &\rightarrow F(L - \epsilon) \ge \delta \\
-			&\rightarrow (\frac{L - \epsilon}{L})^n \ge \delta \\
-			&\rightarrow n \ln(\frac{L - \epsilon}{L}) \ge \ln\delta \\
-			&\rightarrow n \ge \frac{\ln\delta}{\ln(\frac{L - \epsilon}{L})}
+			\mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) &= F(L - \epsilon) 
+			= (\frac{L - \epsilon}{L})^n 
 		\end{align*}
+		\par{The probability of my estimate was within $ \epsilon $ is:}
+		\begin{align*}
+			\mathbb{P}(\hat{L}_{\text{MLE}} \ge L - \epsilon) &= 1 - \mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon). = 1 - (\frac{L - \epsilon}{L})^n 
+		\end{align*}
+		\par{Thus, the number of samples needed to make sure the probability is at least $ \delta $ is:}
+		\begin{align*}
+			\mathbb{P}(\hat{L}_{\text{MLE}} \ge L - \epsilon) \ge \delta &\rightarrow 1 - (\frac{L - \epsilon}{L})^n \ge \delta \\
+			&\rightarrow 1 - \delta \ge (\frac{L - \epsilon}{L})^n \\
+			&\rightarrow \ln(1 - \delta) \ge n \ln(\frac{L - \epsilon}{L}) \\
+			&\rightarrow n \ge \frac{\ln(1 - \delta)}{\ln(\frac{L - \epsilon}{L})}
+		\end{align*}
+		
 		
 		\item {Show that
 		\begin{equation}
 			\hat{L} = (\frac{n+1}{n})\max_{i=1,\dots,n}X_i,
 		\end{equation}
 		is an unbiased estimator, and has a smaller MSE still.}
+		\par{\textbf{Solution:}}
 		\begin{align*}
 			\mathbb{E}[\hat{L}] &= \mathbb{E}[(\frac{n+1}{n})\max_{i=1,\dots,n}X_i] \\
 			&= (\frac{n+1}{n})\mathbb{E}[\max_{i=1,\dots,n}X_i] \\
