@@ -136,6 +136,8 @@
 			\text{MSE}(\hat{L}_{\text{MOM}}) &= \text{bias}(\hat{L}_{\text{MOM}})^2 + \text{var}(\hat{L}_{\text{MOM}}) = \frac{L^2}{3 n} \\
 			\text{MSE}(\hat{L}_{\text{MLE}}) &= \text{bias}(\hat{L}_{\text{MLE}})^2 + \text{var}(\hat{L}_{\text{MLE}}) = (\frac{1}{n+1} L)^2 + \frac{n L^2}{(n+2)(n+1)^2} = \frac{2 L^2}{(n+2)(n+1)} 
 		\end{align*}
+		\par{Let $ \text{MSE}(\hat{L}_{\text{MLE}}) \le \text{MSE}(\hat{L}_{\text{MOM}}) $, solve $ \frac{2 L^2}{(n+2)(n+1)} \le \frac{L^2}{3 n} $, we get $ n \le 1 $ or $ n \ge 2 $.}
+		\par{Thus, MLE always has the smaller MSE.}
 		
 		\item {Experimentally verify your computations in the following way: Taking $ n = 100 $ and $ L = 10 $,}
 		\begin{itemize}
@@ -149,12 +151,41 @@
 		\item {You should have shown that $ \hat{L}_{\text{MLE}} $ , while biased, has a smaller error over all. Why? The mathematical justification for it is above, but is there an explanation for this?}
 		
 		\item {Find $ \mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) $ as a function of $ L, \epsilon, n $. Estimate how many samples I would need to be sure that my estimate was within $ \epsilon $ with probability at least $ \delta $.}
+		\begin{align*}
+			\mathbb{P}(\hat{L}_{\text{MLE}} < L - \epsilon) \ge \delta &\rightarrow F(L - \epsilon) \ge \delta \\
+			&\rightarrow (\frac{L - \epsilon}{L})^n \ge \delta \\
+			&\rightarrow n \ln(\frac{L - \epsilon}{L}) \ge \ln\delta \\
+			&\rightarrow n \ge \frac{\ln\delta}{\ln(\frac{L - \epsilon}{L})}
+		\end{align*}
 		
 		\item {Show that
 		\begin{equation}
 			\hat{L} = (\frac{n+1}{n})\max_{i=1,\dots,n}X_i,
 		\end{equation}
-		is an unbiased estimator, and has a smaller MSE still.
-		}
+		is an unbiased estimator, and has a smaller MSE still.}
+		\begin{align*}
+			\mathbb{E}[\hat{L}] &= \mathbb{E}[(\frac{n+1}{n})\max_{i=1,\dots,n}X_i] \\
+			&= (\frac{n+1}{n})\mathbb{E}[\max_{i=1,\dots,n}X_i] \\
+			&= (\frac{n+1}{n})\mathbb{E}[\hat{L}_{\text{MLE}}] \\
+			&= (\frac{n+1}{n}) (\frac{n}{n+1})L \\
+			&= L 
+		\end{align*}
+		\begin{align*}
+			\text{Var}(\hat{L}) &= \text{Var}((\frac{n+1}{n})\max_{i=1,\dots,n}X_i) \\
+			&= (\frac{n+1}{n})^2 \text{Var}(\max_{i=1,\dots,n}X_i) \\
+			&= (\frac{n+1}{n})^2 \text{Var}(\hat{L}_{\text{MLE}}) \\
+			&= (\frac{n+1}{n})^2 \frac{n L^2}{(n+2)(n+1)^2} \\
+			&= \frac{L^2}{n(n+2)} 
+		\end{align*}
+		\begin{align*}
+			\text{bias}(\hat{L}) &= L - \mathbb{E}[\hat{L}] \\
+			&= 0 \\
+			\text{MSE}(\hat{L}) &= \text{bias}(\hat{L})^2 + \text{Var}(\hat{L}) \\
+			&= 0 + \frac{L^2}{n(n+2)} \\
+			&= \frac{L^2}{n(n+2)} 
+		\end{align*}
+		\par{Thus, $ \hat{L} $ is an unbiased estimator.}
+		\par{Let $ \text{MSE}(\hat{L}) \le \text{MSE}(\hat{L}_{\text{MLE}}) $, solve $ \frac{L^2}{n(n+2)} \le \frac{2 L^2}{(n+2)(n+1)} $, we get $ n \ge 1 $.}
+		\par{Thus, $ \hat{L} $ has a small MSE.}
 	\end{enumerate}
 \end{document}
