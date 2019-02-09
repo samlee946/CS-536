@@ -121,13 +121,20 @@
 			\text{Var}({X}) &= \mathbb{E}[(X - \mathbb{E}(X))^2] = \mathbb{E}[(X - \frac{X}{2})^2] = \frac{1}{4} \mathbb{E}[X^2] = \frac{1}{4} \int_{-\infty}^{\infty} x^2 f(x) dx = \frac{1}{4} \int_{0}^{L} x^2 \frac{1}{L} dx \\
 			&= \frac{1}{4} \frac{1}{3} \frac{1}{L} x^3 \Big|_0^L = \frac{1}{12 L} L^3 = \frac{L^2}{12}\\
 			\text{Var}(\hat{L}_{\text{MOM}}) &= \text{Var}(2 \overline{X}_n) = 4 \text{Var}(\overline{X}_n) = 4 \text{Var}(\frac{1}{n}\sum_{i=1}^{n} {X}_i) = \frac{4}{n^2} \sum_{i=1}^{n} \text{Var}({X}_i) = \frac{4}{n^2} n \text{Var}({X}) = \frac{L^2}{3 n} \\
-			\text{Var}(\hat{L}_{\text{MLE}}) &= \text{Var}(\max_{i=1,\dots,n} X_i) = \text{Var}({X}) = \frac{L^2}{12}
+			\text{Var}(\hat{L}_{\text{MLE}}) &= \mathbb{E}[\hat{L}_{\text{MLE}}^2] - \mathbb{E}[\hat{L}_{\text{MLE}}]^2 \\
+			&= \int_{-\infty}^{\infty} x^2 f(x) dx - (\frac{n}{n+1}L)^2 \\
+			&= \int_{0}^{L} x^2 \frac{n \cdot x^{n-1}}{L^n} dx - \frac{n^2 L^2}{(n+1)^2} \\
+			&= n \int_{0}^{L} \frac{x^{n+1}}{L^n} dx - \frac{n^2 L^2}{(n+1)^2} \\
+			&= \frac{n}{n+2} \frac{x^{n+2}}{L^n} \Big|_{0}^L - \frac{n^2 L^2}{(n+1)^2} \\
+			&= \frac{n L^2}{n+2} - \frac{n^2 L^2}{(n+1)^2} \\
+			&= \frac{n L^2 ((n+1)^2 - n(n+2))}{(n+2)(n+1)^2} \\
+			&= \frac{n L^2}{(n+2)(n+1)^2}
 		\end{align*}
 		
 		\item {Which one is the better estimator, i.e., which one has the smaller mean squared error?}
 		\begin{align*}
 			\text{MSE}(\hat{L}_{\text{MOM}}) &= \text{bias}(\hat{L}_{\text{MOM}})^2 + \text{var}(\hat{L}_{\text{MOM}}) = \frac{L^2}{3 n} \\
-			\text{MSE}(\hat{L}_{\text{MLE}}) &= \text{bias}(\hat{L}_{\text{MLE}})^2 + \text{var}(\hat{L}_{\text{MLE}}) = (\frac{1}{n+1} L)^2 + \frac{L^2}{12}
+			\text{MSE}(\hat{L}_{\text{MLE}}) &= \text{bias}(\hat{L}_{\text{MLE}})^2 + \text{var}(\hat{L}_{\text{MLE}}) = (\frac{1}{n+1} L)^2 + \frac{n L^2}{(n+2)(n+1)^2} = \frac{2 L^2}{(n+2)(n+1)} 
 		\end{align*}
 		
 		\item {Experimentally verify your computations in the following way: Taking $ n = 100 $ and $ L = 10 $,}
