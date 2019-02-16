@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 eps = 1e-5
 
@@ -98,6 +99,57 @@ def fit_decision_tree(X, Y, node, p_vis):
         else:
             node.y = 0
 
+def count_x_agree_on_y(X, Y):
+    m = X.shape[0]
+    diff = 0
+    same = 0
+    for i in range(m):
+        if X[i] != Y[i]:
+            diff += 1
+        else:
+            same += 1
+    return max(same, diff)
+
+def fit_decision_tree_my(X, Y, node, p_vis):
+    m, k = X.shape
+    P_y = np.count_nonzero(Y) / m
+    maxx = 0
+    max_id = -1
+    vis = np.copy(p_vis)
+    for i in range(k):
+        if vis[i] == 1:
+            continue
+        my_measure = count_x_agree_on_y(X[:, i], Y)
+        if my_measure > maxx:
+            maxx = my_measure 
+            max_id = i
+    #print(X, Y)
+    if max_id != -1:
+        vis[max_id] = 1
+        new_X_0 = np.copy(X)
+        new_X_1 = np.copy(X)
+        new_Y_0 = np.copy(Y)
+        new_Y_1 = np.copy(Y)
+        for i in range(m - 1, -1, -1):
+            if new_X_0[i][max_id] > 1 - eps:
+                new_X_0 = np.delete(new_X_0, i, axis = 0)
+                new_Y_0 = np.delete(new_Y_0, i, axis = 0)
+            if new_X_1[i][max_id] < eps:
+                new_X_1 = np.delete(new_X_1, i, axis = 0)
+                new_Y_1 = np.delete(new_Y_1, i, axis = 0)
+        node.x_id = max_id
+        if new_X_0.shape[0] > 0:
+            node.equals_zero = Node(None)
+            fit_decision_tree_my(new_X_0, new_Y_0, node.equals_zero, vis)
+        if new_X_1.shape[0] > 0:
+            node.equals_one = Node(None)
+            fit_decision_tree_my(new_X_1, new_Y_1, node.equals_one, vis)
+    else:
+        if P_y >= 0.5:
+            node.y = 1
+        else:
+            node.y = 0
+
 def print_decision_tree(node, depth = 0):
     if node.y != None:
         print(' ' * 2 * depth + 'Y = %d' % node.y)
@@ -146,6 +198,8 @@ def get_data(k, m, save = False):
     return X, Y
 
 def predict(node, x):
+    if node == None:
+        return 1 # No data captured
     if node.y != None:
         return node.y
     if node.x_id == None:
@@ -161,13 +215,13 @@ def get_err(tree, X, Y):
     for i in range(m):
         prediction = predict(tree.root, X[i])
         #if X[i][0] == 1 and X[i][2] == 0:
-        print(X[i], prediction, Y[i])
+        #print(X[i], prediction, Y[i])
         if prediction != Y[i]:
             s += 1
-    print('Training error is: %f' % (1.0 * s / m))
+    #print('The error is: %f' % (1.0 * s / m))
     return 1.0 * s / m
 
-def save_arr(arr, filename = 'arr.npy'):
+def save_arr(arr, filename = 'arr_k10.npy'):
     np.save(filename, arr)
     print('Saving arr to ' + filename)
 
@@ -175,7 +229,26 @@ def load_arr(filename = 'arr.npy'):
     arr = np.load(filename)
     return arr[:, :-1], arr[:, -1]
 
-if __name__ == '__main__':
+def test(tree, k, m):
+    X_test, Y_test = get_data(k, m, save = False)
+    err = get_err(tree, X_test, Y_test)
+    return err
+
+def question3():
+    tree = DecisionTree()
+    k = 4
+    m = 30
+    #X, Y = get_data(k, m, save = True)
+    X, Y = load_arr()
+    X_train = np.copy(X)
+    Y_train = np.copy(Y)
+    print(X_train)
+    print(Y_train)
+    vis = np.zeros(k)
+    fit_decision_tree(X_train, Y_train, tree.root, vis)
+    print_decision_tree(tree.root)
+
+def question4():
     tree = DecisionTree()
     k = 4
     m = 30
@@ -187,3 +260,60 @@ if __name__ == '__main__':
     fit_decision_tree(X_train, Y_train, tree.root, vis)
     print_decision_tree(tree.root)
     get_err(tree, X_train, Y_train)
+    err = 0
+    for i in range(50):
+        err += test(tree, 4, 10000)
+    print(err / 50)
+
+def question5():
+    k = 10
+    errors = []
+    ms = [30, 100, 300, 1000, 3000, 10000]
+    for m in ms:
+        err = 0
+        for j in range(10):
+            X_train, Y_train = get_data(k, m, save = False)
+            vis = np.zeros(k)
+            tree = DecisionTree()
+            fit_decision_tree(X_train, Y_train, tree.root, vis)
+            #print_decision_tree(tree.root)
+            for i in range(10):
+                #print(m, i)
+                err += test(tree, k, 10000)
+        print(err / 100)
+        errors.append(err / 100)
+    plt.xlabel('m')
+    plt.ylabel('err')
+    plt.plot(ms, errors, '--o')
+    plt.show()
+    return errors
+
+def question6():
+    k = 10
+    errors5 = question5()
+    errors = []
+    ms = [30, 100, 300, 1000, 3000, 10000]
+    for m in ms:
+        err = 0
+        for j in range(10):
+            X_train, Y_train = get_data(k, m, save = False)
+            vis = np.zeros(k)
+            tree = DecisionTree()
+            fit_decision_tree_my(X_train, Y_train, tree.root, vis)
+            #print_decision_tree(tree.root)
+            for i in range(10):
+                #print(m, i)
+                err += test(tree, k, 10000)
+        print(err / 100)
+        errors.append(err / 100)
+    fig, ax = plt.subplots()
+    plt.xlabel('m')
+    plt.ylabel('err')
+    line6, = ax.plot(ms, errors, '--ro', label='My approach')
+    line5, = ax.plot(ms, errors5, '--bo', label='Information gain')
+    ax.legend()
+    plt.show()
+    return errors
+
+if __name__ == '__main__':
+    question6()
