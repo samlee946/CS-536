@@ -1,7 +1,6 @@
 import numpy as np
 
 eps = 1e-5
-vis = None
 
 class Node:
     x_id = None
@@ -47,19 +46,20 @@ def IC(X, Y):
     P_10 = c_10 / (c_10 + c_11)
     P_11 = c_11 / (c_10 + c_11)
     #print(X, P_x)
-    print(c_00, c_01, c_10, c_11)
+    #print(c_00, c_01, c_10, c_11)
     #print(P_00, P_01, P_10, P_11)
     return P_x * entropy(P_11, P_10) + (1 - P_x) * entropy(P_01, P_00)
 
-def fit_decision_tree(X, Y, node):
+def fit_decision_tree(X, Y, node, p_vis):
     m, k = X.shape
     P_y = np.count_nonzero(Y) / m
     H_y = entropy(P_y, 1 - P_y) #-P_y * np.log(P_y) - (1 - P_y) * np.log((1 - P_y))
     #print(X, Y)
-    print(P_y)
-    print(H_y)
+    #print(P_y)
+    #print(H_y)
     maxx = 0
     max_id = -1
+    vis = np.copy(p_vis)
     for i in range(k):
         if vis[i] == 1:
             continue
@@ -88,10 +88,10 @@ def fit_decision_tree(X, Y, node):
         node.x_id = max_id
         if new_X_0.shape[0] > 0:
             node.equals_zero = Node(None)
-            fit_decision_tree(new_X_0, new_Y_0, node.equals_zero)
+            fit_decision_tree(new_X_0, new_Y_0, node.equals_zero, vis)
         if new_X_1.shape[0] > 0:
             node.equals_one = Node(None)
-            fit_decision_tree(new_X_1, new_Y_1, node.equals_one)
+            fit_decision_tree(new_X_1, new_Y_1, node.equals_one, vis)
     else:
         if P_y >= 0.5:
             node.y = 1
@@ -103,12 +103,17 @@ def print_decision_tree(node, depth = 0):
         print(' ' * 2 * depth + 'Y = %d' % node.y)
     if node.x_id == None:
         return
+    print(' ' * 2 * depth + 'If X[%d] == 0:' % node.x_id)
     if node.equals_zero != None:
-        print(' ' * 2 * depth + 'If X[%d] == 0:' % node.x_id)
         print_decision_tree(node.equals_zero, depth + 1)
+    else:
+        print(' ' * 2 * (depth + 1) + 'No data')
+    print(' ' * 2 * depth + 'Else:')
     if node.equals_one != None:
-        print(' ' * 2 * depth + 'If X[%d] == 1:' % node.x_id)
+        #print(' ' * 2 * depth + 'If X[%d] == 1:' % node.x_id)
         print_decision_tree(node.equals_one, depth + 1)
+    else:
+        print(' ' * 2 * (depth + 1) + 'No data')
 
 def get_data(k, m, save = False):
     # input args:
@@ -117,25 +122,50 @@ def get_data(k, m, save = False):
     X = np.zeros((m, k))
     Y = np.zeros((m, 1))
     w = np.zeros(k)
-    denom = 10 * (1 - 0.9 ** k)
-    s = 0
+    denom = 0.9 * 10 * (1 - (0.9 ** (k - 1)))
+    #print(denom)
     for j in range(m):
+        s = 0
         if np.random.rand() >= 0.5:
             X[j][0] = 1
         for i in range(1, k):
+            #X[j] = np.array([0, 1, 1, 0])
             if np.random.rand() >= 0.75:
                 X[j][i] = X[j][i - 1]
             else:
                 X[j][i] = 1 - X[j][i - 1]
-            w[i] = 0.9 ** i / denom
+            w[i] = (0.9 ** i) / denom
             s += w[i] * X[j][i]
         if s >= 0.5:
             Y[j] = X[j][0]
         else:
             Y[j] = 1 - X[j][0]
+        #print(X[j], s, Y[j])
     if save == True:
         save_arr(np.concatenate((X, Y), axis = 1))
     return X, Y
+
+def predict(node, x):
+    if node.y != None:
+        return node.y
+    if node.x_id == None:
+        print('?????')
+    if x[node.x_id] < eps:
+        return predict(node.equals_zero, x)
+    else:
+        return predict(node.equals_one, x)
+
+def get_err(tree, X, Y):
+    s = 0
+    m, k = X.shape
+    for i in range(m):
+        prediction = predict(tree.root, X[i])
+        #if X[i][0] == 1 and X[i][2] == 0:
+        print(X[i], prediction, Y[i])
+        if prediction != Y[i]:
+            s += 1
+    print('Training error is: %f' % (1.0 * s / m))
+    return 1.0 * s / m
 
 def save_arr(arr, filename = 'arr.npy'):
     np.save(filename, arr)
@@ -149,11 +179,11 @@ if __name__ == '__main__':
     tree = DecisionTree()
     k = 4
     m = 30
-    #X, Y = get_data(k, m)
+    #X, Y = get_data(k, m, save = True)
     X, Y = load_arr()
     X_train = np.copy(X)
     Y_train = np.copy(Y)
     vis = np.zeros(k)
-    fit_decision_tree(X_train, Y_train, tree.root)
-    print(tree.root)
+    fit_decision_tree(X_train, Y_train, tree.root, vis)
     print_decision_tree(tree.root)
+    get_err(tree, X_train, Y_train)
