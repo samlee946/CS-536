@@ -1,0 +1,87 @@
+\documentclass[letter, 12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{hyperref}
+\usepackage{algorithmic}
+\usepackage{eqparbox}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{forest}
+
+\author{Shengjie Li}
+\title{CS 536 : Pruning Decision Trees}
+
+\pagestyle{fancy}
+\fancyhf{} 
+\lhead{Shengjie Li \\ RUID: 188008047}
+\cfoot{\thepage} 
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headwidth}{\textwidth}
+\renewcommand\algorithmiccomment[1]{%
+    \hfill\#\ \eqparbox{COMMENT}{#1}%
+}
+\newlist{subquestion}{enumerate}{1}
+\setlist[subquestion, 1]{label = \alph*)}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength\parindent{0pt}
+
+% margin adjustment
+\addtolength{\textwidth}{1in}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\setlength\parindent{0cm}
+
+\begin{document}
+    \centerline{\textbf{CS 536 : Pruning Decision Trees}}
+    \begin{enumerate}
+        \item {Write a function to generate $ m $ samples of$  (\underline{X}, Y) $, and another to fit a tree to that data using \textbf{ID3}. Write a
+        	third function to, given a decision tree f , estimate the error rate of that decision tree on the underlying data,
+        	err($ f $). Do this repeatedly for a range of $ m $ values, and plot the ‘typical’ error of a tree trained on $ m $ data
+        	points as a function of m. Does this agree with your intuition?}
+        \item{Note that $ X $ 15 through $ X $ 20 are completely irrelevant to predicting the value of $ Y $ . For a range of $ m $ values,
+        	repeatedly generate data sets of that size and fit trees to that data, and estimate the average number of
+        	irrelevant variables that are included in the fit tree. How much data would you need, typically, to avoid fitting
+        	on this noise?}
+        \item{Generate a data set of size $ m $ = 10000, and set aside 8000 points for training, and 2000 points for testing. The
+        	remaining questions should all be applied to this data set.}
+        \begin{enumerate}
+        	\item {\textbf{Pruning by Depth:} Consider growing a tree as a process - running ID3 for instance until all splits
+        		up to depth $ d $ have been performed. Depth $ d $ = 0 should correspond to no decisions - a prediction for Y
+        		is made just on the raw frequencies of $ Y $ in the data. Plot, as a function of d, the error on the training
+        		set and the error on the test set for a tree grown to depth d. What does your data suggest as a good
+        		threshold depth?}
+        	\item {\textbf{Pruning by Sample Size:} The less data a split is performed on, the less ‘accurate’ we expect the
+        		result of that split to be. Let $ s $ be a threshold such that if the data available at a node in your decision
+        		tree is less than or equal to s, you do not split and instead decide $ Y $ by simple majority vote (ties broken
+        		by coin flip). Plot, as a function of s, the error on the training set and the error on the testing set for a
+        		tree split down to sample size s. What does your data suggest as a good sample size threshold?}
+        	\item {\textbf{Pruning by Significance::} If a variable $ X $ is independent of $ Y $ , then $ X $ has no value as a splitting
+        		variable. We can use something like the χ 2 -test to estimate how likely a potential splitting variable is
+        		to be independent, based on the test statistic T compared to some threshold T 0 (in the usual 2-outcome
+        		case, T 0 = 3.841 is used to test at a significance level of p = 5\% - see notes for more explanation). Given
+        		T 0 , if given the data for $ X $ the value of T is less than T 0 , it is deemed not significant and is not used for
+        		splitting. If given the data for $ X $ the value of T is greater than T 0 , it is deemed significant, and used for
+        		splitting. Plot, as a function of T 0 , the error on the training set and the error on the testing set for a tree
+        		split at significance threshold T 0 . What does your data suggest as a good threshold for significance?}
+        \end{enumerate}
+        \item{Repeat the computation of Problem 2, growing your trees only to depth $ d $ as chosen in 3.a. How does this
+        	change the likelihood or frequency of including spurious variables in your trees?}
+        \item{Repeat the computation of Problem 2, splitting your trees only to sample size $ s $ as chosen in 3.b. How does
+        	this change the likelihood or frequency of including spurious variables in your trees?}
+        \item{Repeat the computation of Problem 2, splitting your trees only at or above threshold level T 0 as chosen in 3.c.
+        	How does this change the likelihood or frequency of including spurious variables in your trees?}
+    \end{enumerate}
+\end{document}
