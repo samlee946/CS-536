@@ -181,27 +181,36 @@ def test(tree, m):
     err = get_err(tree, X_test, Y_test)
     return err
 
-def test_get_data():
-    get_data(m = 20)
+def uni_test():
+    X, Y = get_data(m = 30)
+    vis = np.zeros(21)
+    tree = DecisionTree()
+    fit_decision_tree(X, Y, tree.root, vis)
+    print_decision_tree(tree.root)
+    print(test(tree, 50))
 
-def question1(show = True, save = False, save_file = 'q1.png'):
+def question1(show = True, save = False, save_file = 'q1-1.png'):
     k = 21
     errors = []
-    repeat_times = 10
+    repeat_times_1 = 5
+    num_of_test_data_sets = 1
+    X_test, Y_test = get_data(500000, save = False)
     ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
     for m in ms:
         err = 0
-        for j in range(10):
+        for j in range(repeat_times_1):
             X_train, Y_train = get_data(m, save = False)
             vis = np.zeros(k)
             tree = DecisionTree()
             fit_decision_tree(X_train, Y_train, tree.root, vis)
             #print_decision_tree(tree.root)
-            for i in range(repeat_times):
-                #print(m, i)
-                err += test(tree, 500000)
-        print(err / repeat_times)
-        errors.append(err / repeat_times)
+            #for i in range(num_of_test_data_sets):
+            #    #print(m, i)
+            #    err += test(tree, 500)
+            err += get_err(tree, X_test, Y_test) 
+            print('Accumulate error for %d, the %d time is: %f' % (m, j, err))
+        print('Error for %d is %f:' % (m, err / repeat_times_1 / num_of_test_data_sets))
+        errors.append(err / repeat_times_1 / num_of_test_data_sets)
     plt.xlabel('m')
     plt.ylabel('err')
     plt.plot(ms, errors, '--o')
@@ -293,4 +302,4 @@ def question6():
     return errors
 
 if __name__ == '__main__':
-    question1()
+    question1(show = False, save = True)
