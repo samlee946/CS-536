@@ -57,9 +57,26 @@ def IC(X, Y):
     #print(P_00, P_01, P_10, P_11)
     return P_x * entropy(P_11, P_10) + (1 - P_x) * entropy(P_01, P_00)
 
-def fit_decision_tree(X, Y, node, p_vis):
+def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = null):
+    # args
+    # pruning = 0, 1, 2, 3 -- no pruning, by depth, by size, by significance
+    if pruning != 0 and extra_info == null:
+        print('ERROR, EXTRA_INFO IS NEEDED')
+        return
     m, k = X.shape
     P_y = np.count_nonzero(Y) / m
+    # Pruning
+    if pruning == 1 and extra_info == 0: # depth = 0
+        if P_y >= 0.5:
+            node.y = 1
+        else:
+            node.y = 0
+    elif pruning == 2 and X.shape[0] <= extra_info: # sample size <= threshold
+        if P_y >= 0.5:
+            node.y = 1
+        else:
+            node.y = 0
+
     H_y = entropy(P_y, 1 - P_y) #-P_y * np.log(P_y) - (1 - P_y) * np.log((1 - P_y))
     #print(X, Y)
     #print(P_y)
@@ -260,14 +277,14 @@ def question1(show = True, save = False, save_file = 'q1.png'):
 def question2(show = True, save = False, save_file = 'q2.png'):
     k = 21
     num_of_vars = []
-    repeat_times_1 = 10
+    repeat_times_1 = 1
     num_of_test_data_sets = 1
     #ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
-    ms = [10000]
+    ms = [1000]
     for m in ms:
         ir_vars = 0
         for j in range(repeat_times_1):
-            X_train, Y_train = get_data(m, save = False)
+            X_train, Y_train = get_data(m)
             vis = np.zeros(k)
             tree = DecisionTree()
             fit_decision_tree(X_train, Y_train, tree.root, vis)
@@ -282,9 +299,10 @@ def question2(show = True, save = False, save_file = 'q2.png'):
         plt.show()
     if save == True:
         plt.savefig(save_file)
-    return errors
+    return num_of_vars
 
 def question3():
+    m = 10000
     tree = DecisionTree()
     k = 4
     m = 30
@@ -385,5 +403,5 @@ if __name__ == '__main__':
     else:
         generate_unique_data(load = False, save = True)
     #count()
-    #question2(show = True, save = True)
-    question1(show = False, save = True)
+    question2(show = False, save = True)
+    #question1(show = False, save = True)
