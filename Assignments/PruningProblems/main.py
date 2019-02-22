@@ -1,8 +1,13 @@
+import os.path
 import numpy as np
 import collections
 import matplotlib.pyplot as plt
 
 eps = 1e-5
+max_datapoints = 500000
+reserved_datapoints_for_testing = 50000
+data_X = np.zeros((max_datapoints, 21))
+data_Y = np.zeros((max_datapoints, 1))
 
 class Node:
     x_id = None
@@ -117,32 +122,51 @@ def print_decision_tree(node, depth = 0):
     else:
         print(' ' * 2 * (depth + 1) + 'No data')
 
-def get_data(m, save = False):
+def generate_unique_data(load = False, save = False):
+    global data_X
+    global data_Y
+    if load == True:
+        data_X, data_Y = load_arr()
+        return data_X, data_Y
+    exist = set()
+    for j in range(max_datapoints):
+        print('Generating data point %d' %j)
+        while(True):
+            num = 0
+            for i in range(21):
+                if i == 0 or i >= 15:
+                    if np.random.rand() >= 0.5:
+                        data_X[j][i] = 1
+                    else:
+                        data_X[j][i] = 0
+                else:
+                    if np.random.rand() >= 0.75:
+                        data_X[j][i] = data_X[j][i - 1]
+                    else:
+                        data_X[j][i] = 1 - data_X[j][i - 1]
+                num *= 2
+                num += data_X[j][i]
+            if num not in exist:
+                exist |= {num}
+                if data_X[j][0] == 0:
+                    data_Y[j] = collections.Counter(data_X[j][1:8]).most_common()[0][0]
+                else:
+                    data_Y[j] = collections.Counter(data_X[j][8:15]).most_common()[0][0]
+                #print(data_X[j], data_Y[j])
+                break
+    if save == True:
+        save_arr(np.concatenate((data_X, data_Y), axis = 1))
+    return data_X, data_Y
+
+def get_data(m, for_testing = False):
     # input args:
     # k: number of features
     # m: number of data points
-    X = np.zeros((m, 21))
-    Y = np.zeros((m, 1))
-    for j in range(m):
-        for i in range(21):
-            if i == 0 or i >= 15:
-                if np.random.rand() >= 0.5:
-                    X[j][i] = 1
-                else:
-                    X[j][i] = 0
-            else:
-                if np.random.rand() >= 0.75:
-                    X[j][i] = X[j][i - 1]
-                else:
-                    X[j][i] = 1 - X[j][i - 1]
-        if X[j][0] == 0:
-            Y[j] = collections.Counter(X[j][1:8]).most_common()[0][0]
-        else:
-            Y[j] = collections.Counter(X[j][8:15]).most_common()[0][0]
-        #print(X[j], Y[j])
-    if save == True:
-        save_arr(np.concatenate((X, Y), axis = 1))
-    return X, Y
+    if for_testing == True:
+        return data_X[-m:], data_Y[-m:]
+    else:
+        idx = np.random.randint(max_datapoints - reserved_datapoints_for_testing, size = m)
+        return data_X[idx, :], data_Y[idx]
 
 def predict(node, x):
     if node == None:
@@ -168,11 +192,24 @@ def get_err(tree, X, Y):
     #print('The error is: %f' % (1.0 * s / m))
     return 1.0 * s / m
 
-def save_arr(arr, filename = 'arr_k10.npy'):
+def get_num_of_vars(node):
+    if node.x_id == None:
+        return set()
+    set_num_of_vars = set()
+    if node.x_id > 14:
+        set_num_of_vars |= {node.x_id}
+    if node.equals_zero != None:
+        set_num_of_vars |= get_num_of_vars(node.equals_zero)
+    if node.equals_one != None:
+        set_num_of_vars |= get_num_of_vars(node.equals_one)
+    #print(set_num_of_vars)
+    return set_num_of_vars
+
+def save_arr(arr, filename = 'data.npy'):
     np.save(filename, arr)
     print('Saving arr to ' + filename)
 
-def load_arr(filename = 'arr.npy'):
+def load_arr(filename = 'data.npy'):
     arr = np.load(filename)
     return arr[:, :-1], arr[:, -1]
 
@@ -189,17 +226,17 @@ def uni_test():
     print_decision_tree(tree.root)
     print(test(tree, 50))
 
-def question1(show = True, save = False, save_file = 'q1-1.png'):
+def question1(show = True, save = False, save_file = 'q1.png'):
     k = 21
     errors = []
     repeat_times_1 = 5
     num_of_test_data_sets = 1
-    X_test, Y_test = get_data(500000, save = False)
+    X_test, Y_test = get_data(50000, for_testing = True)
     ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
     for m in ms:
         err = 0
         for j in range(repeat_times_1):
-            X_train, Y_train = get_data(m, save = False)
+            X_train, Y_train = get_data(m)
             vis = np.zeros(k)
             tree = DecisionTree()
             fit_decision_tree(X_train, Y_train, tree.root, vis)
@@ -214,6 +251,33 @@ def question1(show = True, save = False, save_file = 'q1-1.png'):
     plt.xlabel('m')
     plt.ylabel('err')
     plt.plot(ms, errors, '--o')
+    if show == True:
+        plt.show()
+    if save == True:
+        plt.savefig(save_file)
+    return errors
+
+def question2(show = True, save = False, save_file = 'q2.png'):
+    k = 21
+    num_of_vars = []
+    repeat_times_1 = 10
+    num_of_test_data_sets = 1
+    #ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
+    ms = [10000]
+    for m in ms:
+        ir_vars = 0
+        for j in range(repeat_times_1):
+            X_train, Y_train = get_data(m, save = False)
+            vis = np.zeros(k)
+            tree = DecisionTree()
+            fit_decision_tree(X_train, Y_train, tree.root, vis)
+            ir_vars += len(get_num_of_vars(tree.root))
+            print(get_num_of_vars(tree.root))
+        print('Average irrelevant variables for m=%d is %f:' % (m, ir_vars / repeat_times_1 / num_of_test_data_sets))
+        num_of_vars.append(ir_vars / repeat_times_1 / num_of_test_data_sets)
+    plt.xlabel('m')
+    plt.ylabel('avg. number of irrelevant variables')
+    plt.plot(ms, num_of_vars, '--o')
     if show == True:
         plt.show()
     if save == True:
@@ -301,5 +365,25 @@ def question6():
     plt.show()
     return errors
 
+def count():
+    global data_X
+    global data_Y
+    exist = set()
+    for j in range(max_datapoints):
+        while(True):
+            num = 0
+            for i in range(21):
+                num *= 2
+                num += data_X[j][i]
+            exist |= {num}
+            break
+    print(sorted(list(exist)))
+ 
 if __name__ == '__main__':
+    if os.path.isfile('data.npy'):
+        generate_unique_data(load = True, save = False)
+    else:
+        generate_unique_data(load = False, save = True)
+    #count()
+    #question2(show = True, save = True)
     question1(show = False, save = True)
