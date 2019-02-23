@@ -120,9 +120,36 @@
     
         \item{Repeat the computation of Problem 2, growing your trees only to depth $ d $ as chosen in 3.a. How does this
         	change the likelihood or frequency of including spurious variables in your trees?}
+        
+        \begin{figure}[H]
+        	\centering
+        	\includegraphics[width=0.7\textwidth]{q5-2.png}
+        	\caption{Pruning by depth}
+        	\label{q5}
+        \end{figure}
+        \par{From Fig \ref{q5} we can see, this change has an overall better chance of not including irrelevant variables in the fit tree, especially when $ m $ is large. This makes total sense for the reason that if we don't prune the tree, the tree would eventually start to fit on irrelevant variables. Thus by adding pruning to the tree, the likelihood of including spurious variables in my trees becomes smaller.}
+        
         \item{Repeat the computation of Problem 2, splitting your trees only to sample size $ s $ as chosen in 3.b. How does
         	this change the likelihood or frequency of including spurious variables in your trees?}
+        
+        \begin{figure}[H]
+        	\centering
+        	\includegraphics[width=0.7\textwidth]{q6-2.png}
+        	\caption{Pruning by sample size}
+        	\label{q6}
+        \end{figure}
+        \par{From Fig \ref{q6} we can see, this change has little improvement if not non compared to the results without pruning at all. I am actually a little surprised by this results. I guess the threshold I chose was not as good as I thought.}
+        
         \item{Repeat the computation of Problem 2, splitting your trees only at or above threshold level $T_0$ as chosen in 3.c.
         	How does this change the likelihood or frequency of including spurious variables in your trees?}
+        
+        \begin{figure}[H]
+        	\centering
+        	\includegraphics[width=0.7\textwidth]{q7-2.png}
+        	\caption{Pruning by significance}
+        	\label{q7}
+        \end{figure}
+        \par{From Fig \ref{q7} we can see, this change has a not bad improvement especially when $ m $ is small. This pruning method does not seem to improve much while $ m $ becomes larger. I don't have a very good explanation about this. It could be just because I didn't do enough experiments.}
+        
     \end{enumerate}
 \end{document}
