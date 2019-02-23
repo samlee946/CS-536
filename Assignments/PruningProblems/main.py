@@ -334,7 +334,7 @@ def question1(show = True, save = False, save_file = 'q1.png'):
         plt.savefig(save_file)
     return errors
 
-def question2(show = True, save = False, save_file = 'q5.png'):
+def question2(show = True, save = False, save_file = 'q6-2.png'):
     k = 21
     num_of_vars = []
     repeat_times_1 = 50
@@ -346,7 +346,7 @@ def question2(show = True, save = False, save_file = 'q5.png'):
             X_train, Y_train = get_data(m)
             vis = np.zeros(k)
             tree = DecisionTree()
-            fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 1, extra_info = 10)
+            fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 2, extra_info = 3)
             ir_vars += len(get_num_of_vars(tree.root))
             #print(get_num_of_vars(tree.root))
             #print(print_decision_tree(tree.root))
