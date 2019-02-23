@@ -59,6 +59,49 @@ def IC(X, Y):
     #print(P_00, P_01, P_10, P_11)
     return P_x * entropy(P_11, P_10) + (1 - P_x) * entropy(P_01, P_00)
 
+def chi_square_test(X, Y):
+    m = X.shape[0]
+    x = np.zeros((2, 1))
+    y = np.zeros((2, 1))
+    O = np.zeros((2, 2))
+    P_X = np.zeros((2, 1))
+    P_Y = np.zeros((2, 1))
+    #x[1] = np.count_nonzero(X)
+    #x[0] = m - x[1]
+    #y[1] = np.count_nonzero(Y)
+    #y[0] = m - y[1]
+    for x_, y_ in zip(X, Y):
+        if x_ < eps:
+            if y_ < eps:
+                O[0][0] += 1
+            else:
+                O[0][1] += 1
+        else:
+            if y_ < eps:
+                O[1][0] += 1
+            else:
+                O[1][1] += 1
+    for i in range(2):
+        #P_X[i] = 1.0 * x[i] / m
+        #P_Y[i] = 1.0 * y[i] / m
+        #print(O[i][0] + O[i][1])
+        #print(O[0][i] + O[1][i])
+        P_X[i] = 1.0 * (O[i][0] + O[i][1]) / m
+        P_Y[i] = 1.0 * (O[0][i] + O[1][i]) / m
+    T = 0
+    for i in range(2):
+        for j in range(2):
+            E = P_X[i] * P_Y[j] * m
+            fh = (O[i][0] + O[i][1])
+            sh = (O[0][j] + O[1][j])
+            E2 = 1.0 * fh  * sh / m
+            if E == 0:
+                continue
+            #print(i, j, fh, sh, O[i][j] , E, E2)
+            #print(O[i][j] - E)
+            T += ((O[i][j] - E) ** 2) / E
+    return T
+
 def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = None):
     # args
     # pruning = 0, 1, 2, 3 -- no pruning, by depth, by size, by significance
@@ -73,11 +116,15 @@ def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = None):
             node.y = 1
         else:
             node.y = 0
+        return
     elif pruning == 2 and X.shape[0] <= extra_info: # sample size <= threshold
         if P_y >= 0.5:
             node.y = 1
         else:
             node.y = 0
+        return
+    if pruning == 1:
+        extra_info -= 1
 
     H_y = entropy(P_y, 1 - P_y) #-P_y * np.log(P_y) - (1 - P_y) * np.log((1 - P_y))
     #print(X, Y)
@@ -95,6 +142,15 @@ def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = None):
             max_id = i
     #print(X, Y)
     if max_id != -1:
+        if pruning == 3 and chi_square_test(X[:, max_id], Y) < extra_info:
+            #print(max_id)
+            #print(maxx)
+            #print(chi_square_test(X[:, max_id], Y))
+            if P_y >= 0.5:
+                node.y = 1
+            else:
+                node.y = 0
+            return
         vis[max_id] = 1
         new_X_0 = np.copy(X)
         new_X_1 = np.copy(X)
@@ -114,10 +170,10 @@ def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = None):
         node.x_id = max_id
         if new_X_0.shape[0] > 0:
             node.equals_zero = Node(None)
-            fit_decision_tree(new_X_0, new_Y_0, node.equals_zero, vis)
+            fit_decision_tree(new_X_0, new_Y_0, node.equals_zero, vis, pruning, extra_info)
         if new_X_1.shape[0] > 0:
             node.equals_one = Node(None)
-            fit_decision_tree(new_X_1, new_Y_1, node.equals_one, vis)
+            fit_decision_tree(new_X_1, new_Y_1, node.equals_one, vis, pruning, extra_info)
     else:
         if P_y >= 0.5:
             node.y = 1
@@ -278,7 +334,7 @@ def question1(show = True, save = False, save_file = 'q1.png'):
         plt.savefig(save_file)
     return errors
 
-def question2(show = True, save = False, save_file = 'q2.png'):
+def question2(show = True, save = False, save_file = 'q5.png'):
     k = 21
     num_of_vars = []
     repeat_times_1 = 50
@@ -290,9 +346,9 @@ def question2(show = True, save = False, save_file = 'q2.png'):
             X_train, Y_train = get_data(m)
             vis = np.zeros(k)
             tree = DecisionTree()
-            fit_decision_tree(X_train, Y_train, tree.root, vis)
+            fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 1, extra_info = 10)
             ir_vars += len(get_num_of_vars(tree.root))
-            print(get_num_of_vars(tree.root))
+            #print(get_num_of_vars(tree.root))
             #print(print_decision_tree(tree.root))
         print('Average irrelevant variables for m=%d is %f:' % (m, ir_vars / repeat_times_1))
         num_of_vars.append(ir_vars / repeat_times_1)
@@ -307,87 +363,73 @@ def question2(show = True, save = False, save_file = 'q2.png'):
         plt.savefig(save_file)
     return num_of_vars
 
-def question3():
+def question3(show = True, save = False, save_file = 'q3-2.png'):
     m = 10000
-    tree = DecisionTree()
-    k = 4
-    m = 30
-    #X, Y = get_data(k, m, save = True)
-    X, Y = load_arr()
-    X_train = np.copy(X)
-    Y_train = np.copy(Y)
-    print(X_train)
-    print(Y_train)
-    vis = np.zeros(k)
-    fit_decision_tree(X_train, Y_train, tree.root, vis)
-    print_decision_tree(tree.root)
+    X, Y = get_data(m, for_testing = True)
+    X_train = X[:8000,:]
+    Y_train = Y[:8000]
+    X_test = X[-2000:,:]
+    Y_test = Y[-2000:]
 
-def question4():
-    tree = DecisionTree()
-    k = 4
-    m = 30
-    #X, Y = get_data(k, m, save = True)
-    X, Y = load_arr()
-    X_train = np.copy(X)
-    Y_train = np.copy(Y)
-    vis = np.zeros(k)
-    fit_decision_tree(X_train, Y_train, tree.root, vis)
-    print_decision_tree(tree.root)
-    get_err(tree, X_train, Y_train)
-    err = 0
-    for i in range(50):
-        err += test(tree, 4, 10000)
-    print(err / 50)
+    D = np.arange(1, 17)
+    #S = np.arange(50, 4, -5) + np.arange(4, 1, -1)
+    S = np.concatenate((np.arange(50, 4, -5), np.arange(4, 0, -0.5)))
+    T0 = [0.102, 0.455, 1.323, 2.706, 3.841, 5.024, 6.635, 7.879, 9.550, 10.828]
 
-def question5():
-    k = 10
-    errors = []
-    ms = [30, 100, 300, 1000, 3000, 10000]
-    for m in ms:
-        err = 0
-        for j in range(10):
-            X_train, Y_train = get_data(k, m, save = False)
-            vis = np.zeros(k)
-            tree = DecisionTree()
-            fit_decision_tree(X_train, Y_train, tree.root, vis)
-            #print_decision_tree(tree.root)
-            for i in range(10):
-                #print(m, i)
-                err += test(tree, k, 10000)
-        print(err / 100)
-        errors.append(err / 100)
-    plt.xlabel('m')
-    plt.ylabel('err')
-    plt.plot(ms, errors, '--o')
-    plt.show()
-    return errors
+    errs_train = []
+    err_D = []
+    err_S = []
+    err_T = []
 
-def question6():
-    k = 10
-    errors5 = question5()
-    errors = []
-    ms = [30, 100, 300, 1000, 3000, 10000]
-    for m in ms:
-        err = 0
-        for j in range(10):
-            X_train, Y_train = get_data(k, m, save = False)
-            vis = np.zeros(k)
-            tree = DecisionTree()
-            fit_decision_tree_my(X_train, Y_train, tree.root, vis)
-            #print_decision_tree(tree.root)
-            for i in range(10):
-                #print(m, i)
-                err += test(tree, k, 10000)
-        print(err / 100)
-        errors.append(err / 100)
+#    print('Pruning by depth')
+#    for d in D:
+#        vis = np.zeros(21)
+#        tree = DecisionTree()
+#        fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 1, extra_info = d)
+#        err_train = get_err(tree, X_train, Y_train)
+#        err_test = get_err(tree, X_test, Y_test)
+#        #print_decision_tree(tree.root)
+#        print(err_test)
+#        err_D.append(err_test)
+#        errs_train.append(err_train)
+#
+    print('Pruning by sample size')
+    for s in S:
+        vis = np.zeros(21)
+        tree = DecisionTree()
+        fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 2, extra_info = s)
+        err_train = get_err(tree, X_train, Y_train)
+        err_test = get_err(tree, X_test, Y_test)
+        #print_decision_tree(tree.root)
+        print(err_test)
+        err_S.append(err_test)
+        errs_train.append(err_train)
+
+#    print('Pruning by significance')
+#    for t in T0:
+#        vis = np.zeros(21)
+#        tree = DecisionTree()
+#        fit_decision_tree(X_train, Y_train, tree.root, vis, pruning = 3, extra_info = t)
+#        err_train = get_err(tree, X_train, Y_train)
+#        err_test = get_err(tree, X_test, Y_test)
+#        #print_decision_tree(tree.root)
+#        print(err_test)
+#        err_T.append(err_test)
+#        errs_train.append(err_train)
+
     fig, ax = plt.subplots()
-    plt.xlabel('m')
+    plt.xlabel('sample size (%)')
     plt.ylabel('err')
-    line6, = ax.plot(ms, errors, '--ro', label='My approach')
-    line5, = ax.plot(ms, errors5, '--bo', label='Information gain')
+    #line_d, = ax.plot(list(D), err_D, '--ro', label='Error_test')
+    line_train, = ax.plot(list(S), errs_train, '--bo', label='Error_train')
+    line_s, = ax.plot(list(S), err_S, '--ro', label='Error_test')
+    plt.gca().invert_xaxis()
+    #line_t, = ax.plot(list(T0), err_T, '--ro', label='Error_test')
     ax.legend()
-    plt.show()
-    return errors
+    if show == True:
+        plt.show()
+    if save == True:
+        plt.savefig(save_file)
 
 def count():
     global data_X
@@ -409,5 +451,6 @@ if __name__ == '__main__':
     else:
         generate_unique_data(load = False, save = True)
     #count()
-    question1(show = False, save = True)
+    #question1(show = False, save = True)
     question2(show = False, save = True)
+    #question3(show = False, save = True)
