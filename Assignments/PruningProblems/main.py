@@ -1,7 +1,9 @@
+import time
 import os.path
 import numpy as np
 import collections
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 
 eps = 1e-5
 max_datapoints = 500000
@@ -57,10 +59,10 @@ def IC(X, Y):
     #print(P_00, P_01, P_10, P_11)
     return P_x * entropy(P_11, P_10) + (1 - P_x) * entropy(P_01, P_00)
 
-def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = null):
+def fit_decision_tree(X, Y, node, p_vis, pruning = 0, extra_info = None):
     # args
     # pruning = 0, 1, 2, 3 -- no pruning, by depth, by size, by significance
-    if pruning != 0 and extra_info == null:
+    if pruning != 0 and extra_info is None:
         print('ERROR, EXTRA_INFO IS NEEDED')
         return
     m, k = X.shape
@@ -126,18 +128,20 @@ def print_decision_tree(node, depth = 0):
     if node.y != None:
         print(' ' * 2 * depth + 'Y = %d' % node.y)
     if node.x_id == None:
-        return
+        return depth
     print(' ' * 2 * depth + 'If X[%d] == 0:' % node.x_id)
+    max_depth = depth
     if node.equals_zero != None:
-        print_decision_tree(node.equals_zero, depth + 1)
+        max_depth = max(max_depth, print_decision_tree(node.equals_zero, depth + 1))
     else:
         print(' ' * 2 * (depth + 1) + 'No data')
     print(' ' * 2 * depth + 'Else:')
     if node.equals_one != None:
         #print(' ' * 2 * depth + 'If X[%d] == 1:' % node.x_id)
-        print_decision_tree(node.equals_one, depth + 1)
+        max_depth = max(max_depth, print_decision_tree(node.equals_one, depth + 1))
     else:
         print(' ' * 2 * (depth + 1) + 'No data')
+    return max_depth
 
 def generate_unique_data(load = False, save = False):
     global data_X
@@ -249,7 +253,7 @@ def question1(show = True, save = False, save_file = 'q1.png'):
     repeat_times_1 = 5
     num_of_test_data_sets = 1
     X_test, Y_test = get_data(50000, for_testing = True)
-    ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
+    ms = [100, 300, 1000, 3000, 10000, 30000, 100000]
     for m in ms:
         err = 0
         for j in range(repeat_times_1):
@@ -277,10 +281,9 @@ def question1(show = True, save = False, save_file = 'q1.png'):
 def question2(show = True, save = False, save_file = 'q2.png'):
     k = 21
     num_of_vars = []
-    repeat_times_1 = 1
-    num_of_test_data_sets = 1
-    #ms = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000]
-    ms = [1000]
+    repeat_times_1 = 50
+    ms = [100, 300, 1000, 3000, 10000, 30000, 100000]
+    #t_start = time.time()
     for m in ms:
         ir_vars = 0
         for j in range(repeat_times_1):
@@ -290,8 +293,11 @@ def question2(show = True, save = False, save_file = 'q2.png'):
             fit_decision_tree(X_train, Y_train, tree.root, vis)
             ir_vars += len(get_num_of_vars(tree.root))
             print(get_num_of_vars(tree.root))
-        print('Average irrelevant variables for m=%d is %f:' % (m, ir_vars / repeat_times_1 / num_of_test_data_sets))
-        num_of_vars.append(ir_vars / repeat_times_1 / num_of_test_data_sets)
+            #print(print_decision_tree(tree.root))
+        print('Average irrelevant variables for m=%d is %f:' % (m, ir_vars / repeat_times_1))
+        num_of_vars.append(ir_vars / repeat_times_1)
+    #t_stop = time.time()
+    #print((t_stop - t_start))
     plt.xlabel('m')
     plt.ylabel('avg. number of irrelevant variables')
     plt.plot(ms, num_of_vars, '--o')
@@ -403,5 +409,5 @@ if __name__ == '__main__':
     else:
         generate_unique_data(load = False, save = True)
     #count()
+    question1(show = False, save = True)
     question2(show = False, save = True)
-    #question1(show = False, save = True)
