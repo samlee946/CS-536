@@ -18,7 +18,7 @@
 \usepackage{forest}
 
 \author{Shengjie Li}
-\title{CS 536 : Pruning Decision Trees}
+\title{CS 536 : Perceptrons}
 
 \pagestyle{fancy}
 \fancyhf{} 
@@ -45,111 +45,114 @@
 \setlength\parindent{0cm}
 
 \begin{document}
-    \centerline{\textbf{CS 536 : Pruning Decision Trees}}
+    \centerline{\textbf{CS 536 : Perceptrons}}
     \begin{enumerate}
-        \item {Write a function to generate $ m $ samples of$  (\underline{X}, Y) $, and another to fit a tree to that data using \textbf{ID3}. Write a
-        	third function to, given a decision tree f , estimate the error rate of that decision tree on the underlying data,
-        	err($ f $). Do this repeatedly for a range of $ m $ values, and plot the `typical' error of a tree trained on $ m $ data
-        	points as a function of m. Does this agree with your intuition?}
-        \begin{figure}[H]
-        	\centering
-        	\includegraphics[width=0.7\textwidth]{q1.png}
-        	\label{q1}
-        	\caption{`typical' error of trees trained on $ m $ data
-        		points.}
-        \end{figure}
-    	\par{I tested my decision trees on 50,000 underlying data points, the results are as Fig \ref{q1} shows. Generally, it is exactly what I thought it would be. As the $ m $ becomes large, the $ err $ tends to level out for the reason that the training data is large enough to allow the decision tree to see a large amount of combinations of data.}
-        \item{Note that $ X $ 15 through $ X $ 20 are completely irrelevant to predicting the value of $ Y $ . For a range of $ m $ values,
-        	repeatedly generate data sets of that size and fit trees to that data, and estimate the average number of
-        	irrelevant variables that are included in the fit tree. How much data would you need, typically, to avoid fitting
-        	on this noise?}
-        \begin{figure}[H]
-	        \centering
-	        \includegraphics[width=0.7\textwidth]{q2.png}
-	        \label{q2}
-	        \caption{Average number of irrelevant variables that are included}
-	    \end{figure}
-    	\par{From Fig \ref{q2} we can see 10,000 data points is not enough to eliminate the effect of irrelevant variables (Avg. no. of irrelevant variables at $ m = 100,000 $ is 4.28). Because my inelegant implementation of ID3 algorithm, I don't have enough time to test cases where $ m > 100,000 $. But I assume we would need a huge amount of data points to eliminate the effect of irrelevant variables.}
-        
-        \item{Generate a data set of size $ m $ = 10000, and set aside 8000 points for training, and 2000 points for testing. The
-        	remaining questions should all be applied to this data set.}
+        \item {Show that there is a perceptron that correctly classifies this data. Is this perceptron unique? What is the ‘best’ perceptron for this data set, theoretically?}
         \begin{enumerate}
-        	\item {\textbf{Pruning by Depth:} Consider growing a tree as a process - running ID3 for instance until all splits
-        		up to depth $ d $ have been performed. Depth $ d $ = 0 should correspond to no decisions - a prediction for Y
-        		is made just on the raw frequencies of $ Y $ in the data. Plot, as a function of d, the error on the training
-        		set and the error on the test set for a tree grown to depth d. What does your data suggest as a good
-        		threshold depth?}
-        	\begin{figure}[H]
-        		\centering
-        		\includegraphics[width=0.7\textwidth]{q3-1.png}
-        		\caption{Pruning by depth}
-        		\label{q31}
-        	\end{figure}
-        	\par{From Fig \ref{q31} we can see, after the point $ depth = 10 $, $ err_{test} $ starts to level out while $ err_{train} $ continues to decline for a little bit. Thus, a good threshold depth could be $ depth = 10. $}
-        
-        	\item {\textbf{Pruning by Sample Size:} The less data a split is performed on, the less `accurate' we expect the
-        		result of that split to be. Let $ s $ be a threshold such that if the data available at a node in your decision
-        		tree is less than or equal to s, you do not split and instead decide $ Y $ by simple majority vote (ties broken
-        		by coin flip). Plot, as a function of s, the error on the training set and the error on the testing set for a
-        		tree split down to sample size s. What does your data suggest as a good sample size threshold?}
-        	\begin{figure}[H]
-        		\centering
-        		\includegraphics[width=0.7\textwidth]{q3-2.png}
-        		\caption{Pruning by sample size}
-        		\label{q32}
-        	\end{figure}
-        	\par{I did experiments on sample size of 50\%, 45\%, 40\%, 35\%, 30\%, 25\%, 20\%, 15\%, 10\%, 5\%, 4.5\%, 4\%, 3.5\%, 3\%, 2.5\%, 2\%, 1.5\%, 1\%, 0.5\% of $ m $. The results are shown in Fig \ref{q32}. We might not be able to see it very clearly from the figure. The raw data is: 0.129, 0.1185, 0.103, 0.0855, 0.07, 0.0595, 0.0505, 0.0405, 0.0295, 0.0275, 0.026, 0.0245, 0.0245, 0.022, 0.022, 0.021, 0.021, 0.021.}
-        	\par{After sample size < 3\% of the size of total data points, both $ err_{train} $ and $ err_{test} $ start to level out. Thus, a good sample size threshold could be 3\% of the size of total data points.}
-        
-        	\item {\textbf{Pruning by Significance::} If a variable $ X $ is independent of $ Y $ , then $ X $ has no value as a splitting
-        		variable. We can use something like the χ 2 -test to estimate how likely a potential splitting variable is
-        		to be independent, based on the test statistic T compared to some threshold $T_0$ (in the usual 2-outcome
-        		case, $T_0$ = 3.841 is used to test at a significance level of p = 5\% - see notes for more explanation). Given
-        		$T_0$ , if given the data for $ X $ the value of T is less than $T_0$ , it is deemed not significant and is not used for
-        		splitting. If given the data for $ X $ the value of T is greater than $T_0$ , it is deemed significant, and used for
-        		splitting. Plot, as a function of $T_0$ , the error on the training set and the error on the testing set for a tree
-        		split at significance threshold $T_0$ . What does your data suggest as a good threshold for significance?}
-        	\begin{figure}[H]
-        		\centering
-        		\includegraphics[width=0.7\textwidth]{q3-3.png}
-        		\caption{Pruning by significance}
-        		\label{q33}
-        	\end{figure}
-        	\par{From Fig \ref{q33} we can see, after the point $ T_0 = 3.841 $, $ err_{test} $ starts to level out while $ err_{train} $ continues to decline for a little bit. Thus, a good threshold depth could be $ T_0 = 3.841. $}
+            \item{Because the class of each data point is only determined by the value of the $ X_k $ feature, it's clear that a perceptron can tell if $ X_k $ is greater than 0 or less than 0.}
+            \item{There are infinite perceptrons that can correctly classifies this data. In fact, if we let $ a = max_i(X^i_k), \text{s.t. } Y^i == -1 $ and $ b = min_i(X^i_k), \text{s.t. } Y^i == 1 $, every hyperplane $ a <= x_k <= b $ can correctly classify this data.}
+            \item{Theoretically, the best perceptron would be a hyperplane of $ x_k = 0 $. A hyperplane of $ x_k = \frac{a + b}{2} $ can classify the training data very well, but it would fail to generalize for data points with $ X_k \in (a, 0)  \bigcup (0, b). $}
         \end{enumerate}
+        
+        \item {We want to consider the problem of learning perceptrons from data sets. Generate a set of data of size m = 100
+            with $ k = 20, \epsilon = 1 $.}
+        \begin{itemize}
+            \item {Implement the perceptron learning algorithm. This data is separable, so the algorithm will terminate. How does the output perceptron compare to your theoretical answer in the previous problem?}
+            \par{The perceptron I get is: }
+            \begin{lstlisting}
+w = [[ 0.        ]
+    [ 0.02087407]
+    [ 0.17257196]
+    [-0.55194861]
+    [ 0.97983356]
+    [-0.85764329]
+    [ 0.85379284]
+    [-0.89753315]
+    [-2.63630402]
+    [ 0.3010298 ]
+    [ 1.77413824]
+    [-1.21897327]
+    [-1.87519926]
+    [ 0.64459163]
+    [ 1.12742088]
+    [-0.18981816]
+    [ 2.24033418]
+    [-0.9949524 ]
+    [ 2.1984183 ]
+    [ 0.9931059 ]
+    [ 7.35863809]]
+            \end{lstlisting}
+            \par{The margin of my output perceptron is 0.02223443.}
+            \par{While the theoretically best perceptron is:}
+            \begin{lstlisting}
+w = [[0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [0.]
+    [1.]]
+            \end{lstlisting}
+            \par{The margin of the theoretically best perceptron is 1.00739826.}
+            \par{Thus, my output perceptron has a smaller margin than the theoretically best perceptron, which means it might potentially fail to generalize well in other data sets, which is not a good thing.}
+        \end{itemize}
+        
+        \item {For any given data set, there may be multiple separators with multiple margins - but for our data set, we can effectively control the size of the margin with the parameter $ \epsilon $ - the bigger this value, the bigger the margin of our separator.}
+        \begin{itemize}
+            \item {For $ m = 100, k = 20 $, generate a data set for a given value of $ \epsilon $ and run the learning algorithm to
+                completion. Plot, as a function of $ \epsilon \in [0, 1] $, the average or typical number of steps the algorithm needs to
+                terminate. Characterize the dependence.}
+            \begin{figure}[H]
+            	\centering
+            	\includegraphics[width=.7\textwidth]{q3.png}
+            	\caption{Average number of steps the algorithm needs to terminate}
+            \end{figure}
+        \end{itemize}
     
-        \item{Repeat the computation of Problem 2, growing your trees only to depth $ d $ as chosen in 3.a. How does this
-        	change the likelihood or frequency of including spurious variables in your trees?}
         
-        \begin{figure}[H]
-        	\centering
-        	\includegraphics[width=0.7\textwidth]{q5-2.png}
-        	\caption{Pruning by depth}
-        	\label{q5}
-        \end{figure}
-        \par{From Fig \ref{q5} we can see, this change has an overall better chance of not including irrelevant variables in the fit tree, especially when $ m $ is large. This makes total sense for the reason that if we don't prune the tree, the tree would eventually start to fit on irrelevant variables. Thus by adding pruning to the tree, the likelihood of including spurious variables in my trees becomes smaller.}
+        \item {One of the nice properties of the perceptron learning algorithm (and perceptrons generally) is that learning
+            the weight vector $ \underline{w} $ and bias value $ b $ is typically independent of the ambient dimension. To see this, consider
+            the following experiment:}
+        \begin{itemize}
+            \item {Fixing $ m = 100, \epsilon = 1 $, consider generating a data set on k features and running the learning algorithm on
+                it. Plot, as a function $ k $ (for $ k = 2, \dots , 40 $), the typical number of steps to learn a perceptron on a data
+                set of this size. How does the number of steps vary with $ k $? Repeat for $ m = 1000 $.}
+            \begin{figure}[H]
+	            \centering
+	            \includegraphics[width=.7\textwidth]{q4-100.png}
+	            \caption{Average number of steps the algorithm needs to terminate}
+        	\end{figure}
+	        \begin{figure}[H]
+		        \centering
+		        \includegraphics[width=.7\textwidth]{q4-1000.png}
+		        \caption{Average number of steps the algorithm needs to terminate}
+		    \end{figure}
+        \end{itemize}
         
-        \item{Repeat the computation of Problem 2, splitting your trees only to sample size $ s $ as chosen in 3.b. How does
-        	this change the likelihood or frequency of including spurious variables in your trees?}
-        
-        \begin{figure}[H]
-        	\centering
-        	\includegraphics[width=0.7\textwidth]{q6-2.png}
-        	\caption{Pruning by sample size}
-        	\label{q6}
-        \end{figure}
-        \par{From Fig \ref{q6} we can see, this change has little improvement if not non compared to the results without pruning at all. I am actually a little surprised by this results. I guess the threshold I chose was not as good as I thought.}
-        
-        \item{Repeat the computation of Problem 2, splitting your trees only at or above threshold level $T_0$ as chosen in 3.c.
-        	How does this change the likelihood or frequency of including spurious variables in your trees?}
-        
-        \begin{figure}[H]
-        	\centering
-        	\includegraphics[width=0.7\textwidth]{q7-2.png}
-        	\caption{Pruning by significance}
-        	\label{q7}
-        \end{figure}
-        \par{From Fig \ref{q7} we can see, this change has a not bad improvement especially when $ m $ is small. This pruning method does not seem to improve much while $ m $ becomes larger. I don't have a very good explanation about this. It could be just because I didn't do enough experiments.}
-        
+        \item {As shown in class, the perceptron learning algorithm always terminates in finite time - if there is a separator.
+            Consider generating non-separable data in the following way: generate each $ X_1 , \dots , X_k $ as i.i.d. standard
+            normals $ N (0, 1) $. Define Y by \[ Y = \begin{cases}
+            +1 & \text{if } \sum_{i=1}^{k}X_i^2 \ge k \\
+            -1 & \text{else}.
+            \end{cases} \]}
+        \par{For data defined in this way, there is no universally applicable linear separator.}
+        \par{For $ k = 2, m = 100 $, generate a data set that is not linearly separable. (How can you verify this?) Then run
+            the perceptron learning algorithm. What does the progression of weight vectors and bias values look like over
+            time? If there is no separator, this will never terminate - is there any condition or heuristic you could use to
+            determine whether or not to terminate the algorithm and declare no separator found?}
     \end{enumerate}
 \end{document}
