@@ -16,13 +16,14 @@
 \usepackage{mathtools}
 \usepackage{minted}
 \usepackage{forest}
+\usepackage{cite}
 
 \author{Shengjie Li}
 \title{CS 536 : Perceptrons}
 
 \pagestyle{fancy}
 \fancyhf{} 
-\lhead{Shengjie Li \\ RUID: 188008047}
+\lhead{Shengjie Li \\ netID: sl1560}
 \cfoot{\thepage} 
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\headwidth}{\textwidth}
@@ -82,7 +83,7 @@ w = [[ 0.        ]
     [ 0.9931059 ]
     [ 7.35863809]]
             \end{lstlisting}
-            \par{The margin of my output perceptron is 0.02223443.}
+            \par{The first element of my $ \underline{w} $ is the bias unit. The margin of my output perceptron is 0.02223443.}
             \par{While the theoretically best perceptron is:}
             \begin{lstlisting}
 w = [[0.]
@@ -107,7 +108,7 @@ w = [[0.]
     [0.]
     [1.]]
             \end{lstlisting}
-            \par{The margin of the theoretically best perceptron is 1.00739826.}
+            \par{The first element of my $ \underline{w} $ is the bias unit. The margin of the theoretically best perceptron is 1.00739826.}
             \par{Thus, my output perceptron has a smaller margin than the theoretically best perceptron, which means it might potentially fail to generalize well in other data sets, which is not a good thing.}
         \end{itemize}
         
@@ -121,6 +122,7 @@ w = [[0.]
             	\includegraphics[width=.7\textwidth]{q3.png}
             	\caption{Average number of steps the algorithm needs to terminate}
             \end{figure}
+        	\par{The bigger the $ \epsilon $ is, the farther the data points would be separated. It would be easier for the learning algorithm to find a linear separator for larger $ \epsilon $ since the margin is bigger. Thus, with the increase of $ \epsilon $, the average steps of the learning algorithm would first decrease, then start to level out since it would be nearly an instant fit. The shape of the plot looks like half of a hyperbola. }
         \end{itemize}
     
         
@@ -133,14 +135,11 @@ w = [[0.]
                 set of this size. How does the number of steps vary with $ k $? Repeat for $ m = 1000 $.}
             \begin{figure}[H]
 	            \centering
-	            \includegraphics[width=.7\textwidth]{q4-100.png}
+	            \includegraphics[width=.7\textwidth]{q4-2.png}
 	            \caption{Average number of steps the algorithm needs to terminate}
+	            \label{q4}
         	\end{figure}
-	        \begin{figure}[H]
-		        \centering
-		        \includegraphics[width=.7\textwidth]{q4-1000.png}
-		        \caption{Average number of steps the algorithm needs to terminate}
-		    \end{figure}
+        	\par{As shown in the Fig \ref{q4}, with the increase of $ k $, the average steps the algorithm needs to terminate slowly increases. The increase of average steps is generally linear.}
         \end{itemize}
         
         \item {As shown in class, the perceptron learning algorithm always terminates in finite time - if there is a separator.
@@ -154,5 +153,21 @@ w = [[0.]
             the perceptron learning algorithm. What does the progression of weight vectors and bias values look like over
             time? If there is no separator, this will never terminate - is there any condition or heuristic you could use to
             determine whether or not to terminate the algorithm and declare no separator found?}
+        \begin{figure}[H]
+	        \centering
+	        \includegraphics[width=.7\textwidth]{q5.png}
+	        \caption{Data set}
+	        \label{q5}
+	    \end{figure}
+    	\par{There are several methods to verify if the data is linearly separable.}
+    	\begin{enumerate}
+    		\item{If the data has intersecting convex hulls, then the data is not linearly separable \cite{holmes}. }
+    		\item{If the learning algorithm runs over a certain number of steps, then the data is not linearly separable.}
+    	\end{enumerate}
+   		\par{Since the data is only 2-dimensional, I am going to plot my data here.}
+    	\par{As Fig \ref{q5} shows, there is clearly no linear separator that can separate this data. }
     \end{enumerate}
+
+	\bibliography{mybib}{}
+	\bibliographystyle{plain}
 \end{document}
