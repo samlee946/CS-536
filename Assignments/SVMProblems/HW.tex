@@ -1,0 +1,82 @@
+\documentclass[letter, 12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{hyperref}
+\usepackage{algorithmic}
+\usepackage{eqparbox}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{forest}
+\usepackage{cite}
+
+\author{Shengjie Li}
+\title{CS 536 : Support Vector Machine Problems}
+
+\pagestyle{fancy}
+\fancyhf{} 
+\lhead{Shengjie Li \\ netID: sl1560}
+\cfoot{\thepage} 
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headwidth}{\textwidth}
+\renewcommand\algorithmiccomment[1]{%
+    \hfill\#\ \eqparbox{COMMENT}{#1}%
+}
+\newlist{subquestion}{enumerate}{1}
+\setlist[subquestion, 1]{label = \alph*)}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength\parindent{0pt}
+
+% margin adjustment
+\addtolength{\textwidth}{1in}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\setlength\parindent{0cm}
+
+\begin{document}
+    \centerline{\textbf{CS 536 : Support Vector Machine Problems}}
+    \begin{enumerate}
+    	\item{Suppose you had a data set in two dimensions that satisfied the following: the positive class all lay within a certain radius of a point, the negative class all lay outside that radius.}
+    	\begin{itemize}
+    		\item{Show that under the feature map $ \phi(x_1 , x_2 ) = (1, x_1 , x_2 , x_1 x_2 , x_{1}^2 , x_{2}^2 ) $ (or equivalently, with the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^2 $ ), a linear separator can always be found in this embedded space, regardless of radius and where the data is centered.}
+    		\par{\textbf{Solution:}}
+    		\par{From the question we can know that the positive class can be represented in the way of: $ (x_1 - a)^2 + (x_2 - b)^2 \le r $; while the negative class can be $ (x_1 - a)^2 + (x_2 - b)^2 > r $.}
+    		\par{Expand the inequality, the positive class would be:}
+    			\[(x_1^2 - 2 x_1 a + a^2) + (x_2^2 - 2 x_2 b + b^2) \le r. \]
+    		\par{Thus the seperator can be:}
+    			\[f(x_1, x_2) = sign(x_1^2 + x_2^2 - 2a x_1 - 2b x_2 + a^2 + b^2 - r). \]
+    		\item{In fact show that if there is an ellipsoidal separator, regardless of center, width, orientation (and dimension!), a separator can be found in the quadratic feature space using this kernel.}
+    		\par{\textbf{Solution:}}
+    		\par{If there is an ellipsoidal separator, suppose it's unrotated, centered at the origin, of dimension $ d $, then the separator could be:}
+    		\[ f(x_1, \dots, x_d) = sign(ax_1^2 + bx_2^2 + \dots + dx_d^2 - 1). \]
+    		\par{While the quadratic kernel contains a feature map of $ (1, \sqrt{2}x_1, \dots, \sqrt{2}x_d, \sqrt{2}x_1x_2, \dots, x_1^2, \dots, x_d^2)$, it's clear that an unrotated ellipsoidal separator can be found in the quadratic feature space.}
+    		\par{For ellipsoidal separators that's not centered at the origin and have some kind of rotation, we can simply see this as the rotation of axes and the shift of the origin, which are just linear transformation on the original equations.}
+    		\par{Thus, if there is an ellipsoidal separator, regardless of center, width, orientation and dimension, a separator can be found using this kernel.}
+    	\end{itemize}
+    	\item{As an extension of the previous problem, suppose that the two dimensional data set satisfied the following: the
+    		positive class lay within one of two (disjoint) ellipsoidal regions, and the negative class was everywhere else.
+    		Argue that the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover a separator.}
+    	\item{Suppose that the two dimensional data set is distributed like the following: the positive class lays in a circle centered at some point, the additional positive points lie outside that radius. Argue that the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover a separator.}
+    	\item{Consider the XOR data (located at $ (\pm1, \pm1) $). Express the dual SVM problem and show that a separator can be found using
+    		\begin{itemize}
+    			\item{$ K(x, y) = (1 + \underline{x}.\underline{y}) 2 $}
+    			\item{$ K(x, y) = exp(-||x - y||^2 ). $}
+    	\end{itemize}
+    		For each, determine the regions of $ (x_1 , x_2 ) $ space where points will be classified as positive or negative. Given
+    		that each produces a distinct separator, how might you decide which of the two was preferred?
+    	}
+    	
+    \end{enumerate}
+\end{document}
