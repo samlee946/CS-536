@@ -57,10 +57,12 @@
     			\[(x_1^2 - 2 x_1 a + a^2) + (x_2^2 - 2 x_2 b + b^2) \le r. \]
     		\par{Thus the seperator can be:}
     			\[f(x_1, x_2) = sign(x_1^2 + x_2^2 - 2a x_1 - 2b x_2 + a^2 + b^2 - r). \]
+    		\par{If $ f(x_1, x_2) == 1 $, $ (x_1, x_2) $ is in the negative class. If $ f(x_1, x_2) == -1 $, $ (x_1, x_2) $ is in the positive class.}
     		\item{In fact show that if there is an ellipsoidal separator, regardless of center, width, orientation (and dimension!), a separator can be found in the quadratic feature space using this kernel.}
     		\par{\textbf{Solution:}}
     		\par{If there is an ellipsoidal separator, suppose it's unrotated, centered at the origin, of dimension $ d $, then the separator could be:}
     		\[ f(x_1, \dots, x_d) = sign(ax_1^2 + bx_2^2 + \dots + dx_d^2 - 1). \]
+    		\par{If $ f(x_1, \dots, x_d) == 1 $, $ (x_1, \dots, x_d) $ is in the negative class. If $ f(x_1, \dots, x_d) == -1 $, $ (x_1, \dots, x_d) $ is in the positive class.}
     		\par{While the quadratic kernel contains a feature map of $ (1, \sqrt{2}x_1, \dots, \sqrt{2}x_d, \sqrt{2}x_1x_2, \dots, x_1^2, \dots, x_d^2)$, it's clear that an unrotated ellipsoidal separator can be found in the quadratic feature space.}
     		\par{For ellipsoidal separators that's not centered at the origin and have some kind of rotation, we can simply see this as the rotation of axes and the shift of the origin, which are just linear transformation on the original equations.}
     		\par{Thus, if there is an ellipsoidal separator, regardless of center, width, orientation and dimension, a separator can be found using this kernel.}
@@ -68,7 +70,24 @@
     	\item{As an extension of the previous problem, suppose that the two dimensional data set satisfied the following: the
     		positive class lay within one of two (disjoint) ellipsoidal regions, and the negative class was everywhere else.
     		Argue that the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover a separator.}
-    	\item{Suppose that the two dimensional data set is distributed like the following: the positive class lays in a circle centered at some point, the additional positive points lie outside that radius. Argue that the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover a separator.}
+    	\par{\textbf{Solution:}}
+    	\par{Suppose the first ellipsoidal region $ E_1 $ is $ a_0 (x - x_0)^2 + b_0 (y - y_0)^2 \le r_1 $ and the second one $ E_2 $ is $ a_1 (x - x_1)^2 + b_1 (y - y_1)^2 \le r_2 $, then points of positive class would lie in either $ E_1 $ or $ E_2 $.}
+    	\par{Because these two regions are disjoint, if a point $ (x, y) $ lies in $ E_1 $, then $ a_0 (x - x_0)^2 + b_0 (y - y_0)^2 \le r_1 $ and $ a_1 (x - x_1)^2 + b_1 (y - y_1)^2 > r_2 $, which means if a point is in positive class, the results of the equations $ a_0 (x - x_0)^2 + b_0 (y - y_0)^2 - r_1 $ and $ a_1 (x - x_1)^2 + b_1 (y - y_1)^2 - r_2 $ would have different signs.}
+    	\par{If a point is in negative class, then the results of the equations $ a_0 (x - x_0)^2 + b_0 (y - y_0)^2 - r_1 $ and $ a_1 (x - x_1)^2 + b_1 (y - y_1)^2 - r_2 $ would have the same sign.}
+    	\par{Thus, we can design a classifier: }
+    	\begin{align*}
+    		f(x, y) &= sign((a_0 (x - x_0)^2 + b_0 (y - y_0)^2 - r_1) * (a_1 (x - x_1)^2 + b_1 (y - y_1)^2 - r_2)) 
+    	\end{align*}
+    	\par{If $ f(x, y) == 1 $, $ (x, y) $ is in the negative class. If $ f(x, y) == -1 $, $ (x, y) $ is in the positive class.}
+    	\par{While $ f(x, y) $ is the multiplication of two polynomials of degree 2 and $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ is a polynomial kernel of degree 4, we could tell that this kernel will recover a separator.}
+    	
+    	\item{Suppose that the two dimensional data set is distributed like the following: the positive class lays in a circle centered at some point, the negative class lies in a circular band surrounding it of some radius, and then the additional positive points lie outside that radius. Argue that the kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover a separator.}
+    	\par{\textbf{Solution:}}
+    	\par{The positive class would be in $ (x - a)^2 + (y - b)^2 \le r_1 $ or $ (x - a)^2 + (y - b)^2 \ge r_2 $ while the negative class would be in $ r_1 < (x - a)^2 + (y - b)^2 < r_2 $.}
+    	\par{If a point is in positive class, then the signs of equations $ (x - a)^2 + (y - b)^2 - r_1 $ and $ (x - a)^2 + (y - b)^2 - r_2 $ would be the same. If a point is in negative class, the signs of equations $ (x - a)^2 + (y - b)^2 - r_1 $ and $ (x - a)^2 + (y - b)^2 - r_2 $ would be different.}
+    	\par{Thus, we can use $ f(x, y) = sign(((x - a)^2 + (y - b)^2 - r_1) * ((x - a)^2 + (y - b)^2 - r_2) $ as the separator. If $ f(x, y) == 1 $, $ (x, y) $ is in the positive class. If $ f(x, y) == -1 $, $ (x, y) $ is in the negative class.}
+    	\par{Notice that the separator depends on the sign of the multiplication of two polynomials of degree 2, thus the 4-degree polynomial kernel $ K(x, y) = (1 + \underline{x}.\underline{y})^4 $ will recover this separator.}
+    	
     	\item{Consider the XOR data (located at $ (\pm1, \pm1) $). Express the dual SVM problem and show that a separator can be found using
     		\begin{itemize}
     			\item{$ K(x, y) = (1 + \underline{x}.\underline{y}) 2 $}
