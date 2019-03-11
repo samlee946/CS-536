@@ -92,10 +92,116 @@
     		\begin{itemize}
     			\item{$ K(x, y) = (1 + \underline{x}.\underline{y}) 2 $}
     			\item{$ K(x, y) = exp(-||x - y||^2 ). $}
-    	\end{itemize}
+    		\end{itemize}
     		For each, determine the regions of $ (x_1 , x_2 ) $ space where points will be classified as positive or negative. Given
     		that each produces a distinct separator, how might you decide which of the two was preferred?
     	}
-    	
+    	\par{The data is:}
+    	$ (\underline{x}, y) = 
+    	\begin{cases}
+    	((-1, -1), -1) \\
+    	((-1, +1), 1) \\
+    	((+1, -1), 1) \\
+    	((+1, +1), -1)
+    	\end{cases} $
+    	\par{The dual SVM is:}
+    	\begin{align*}
+    		&\max_{\underline{\alpha}} \sum_{i=1}^{m} \alpha_i - \frac{1}{2} \sum_{i=1}^{m} \sum_{j=1}^{m} \alpha_i y^i K(x^i, x^j) y^j \alpha_j \\
+    		&
+    		\begin{aligned}
+	    		(s.t.) \sum_{i=1}^{m} \alpha_i y^i &= 0 \\
+	    		\forall i: \alpha_i &\ge 0.
+    		\end{aligned}
+    	\end{align*}
+    	\par{Denote $ K_{i, j} $ as $ K(x^i, x^j) $, we get:}
+    	\begin{align*}
+    	&\max_{\alpha_1, \alpha_2, \alpha_3, \alpha_4} [\alpha_1 + \alpha_2 + \alpha_3 + \alpha_4] - \frac{1}{2} [
+    	\begin{aligned}[t]
+    	&\alpha_1^2 K_{1,1} - 2\alpha_1 \alpha_2 K_{1,2} - 2\alpha_1 \alpha_3 K_{1,3} + 2\alpha_1 \alpha_4 K_{1,4} \\
+    	& + \alpha_2^2 K_{2,2} + 2\alpha_2 \alpha_3 K_{2,3} - 2\alpha_2 \alpha_4 K_{2,4} \\
+    	& + \alpha_3^2 K_{3,3} - 2\alpha_3 \alpha_4 K_{3,4} \\
+    	& + \alpha_4^2 K_{4,4} ] \\
+    	\end{aligned} \\
+    	&
+    	\begin{aligned}
+    	(s.t.) -\alpha_1 + \alpha_2 + \alpha_3 -\alpha_4 &= 0 \\
+    	\alpha_1, \alpha_2, \alpha_3, \alpha_4 &\ge 0.
+    	\end{aligned}
+    	\end{align*}
+    	\begin{itemize}
+    		\item{$ K(x, y) = (1 + \underline{x}.\underline{y}) 2 $}
+    		\par{}
+    		$ K = \begin{bmatrix}
+    		9 & 1 & 1 & 1 \\
+    		1 & 9 & 1 & 1 \\
+    		1 & 1 & 9 & 1 \\
+    		1 & 1 & 1 & 9 \\
+    		\end{bmatrix} $
+    		\par{The problem becomes:}
+    		\begin{align*}
+    		&\max_{\alpha_1, \alpha_2, \alpha_3, \alpha_4} [\alpha_1 + \alpha_2 + \alpha_3 + \alpha_4] - \frac{1}{2} [
+    		\begin{aligned}[t]
+    		&9 \alpha_1^2 - 2\alpha_1 \alpha_2 - 2\alpha_1 \alpha_3 + 2\alpha_1 \alpha_4 \\
+    		& + 9 \alpha_2^2 + 2\alpha_2 \alpha_3 - 2\alpha_2 \alpha_4 \\
+    		& + 9 \alpha_3^2 - 2\alpha_3 \alpha_4 \\
+    		& + 9 \alpha_4^2 ] \\
+    		\end{aligned} \\
+    		&
+    		\begin{aligned}
+    		(s.t.) \alpha_1 + \alpha_4 &= \alpha_2 + \alpha_3 \\
+    		\alpha_1, \alpha_2, \alpha_3, \alpha_4 &\ge 0.
+    		\end{aligned}
+    		\end{align*}
+    		\par{After taking partial derivatives and make them 0, we get:}
+    		\begin{align*}
+    			9 \alpha_1 - \alpha_2 - \alpha_3 + \alpha_4 &= 1 \\
+    			-\alpha_1 + 9 \alpha_2 + \alpha_3 - \alpha_4 &= 1 \\
+    			- \alpha_1 + \alpha_2 + 9 \alpha_3 - \alpha_4 &= 1 \\
+    			\alpha_1 - \alpha_2 - \alpha_3 + 9 \alpha_4 &= 1 .
+    		\end{align*}
+    		\par{Thus, $ \alpha_1 = \alpha_2 = \alpha_3 = \alpha_4 = 0.25 $.}
+    		\par{$ \underline{w}.\underline{x} = \sum_{i=1}^m \alpha_i y^i K(\underline{x^i}, \underline{x}) = \frac{1}{4}(-K(\underline{x}^1, \underline{x}) + K(\underline{x}^2, \underline{x}) + K(\underline{x}^3, \underline{x}) - K(\underline{x}^4, \underline{x}))$.}
+    		\par{Choosing $ \underline{x}^1 $ as the support vector, we get the bias value:}
+    		\[ b = y^1 - \underline{w}.\underline{x}^1 = -1 \]
+    		\par{The classifier is:}
+    		\[ f(x) = sign(\frac{1}{4}(-K(\underline{x}^1, \underline{x}) + K(\underline{x}^2, \underline{x}) + K(\underline{x}^3, \underline{x}) - K(\underline{x}^4, \underline{x})) - 1) \]
+    		
+    		\item{$ K(x, y) = exp(-||x - y||^2 ). $}
+    		\par{}
+    		$ K = \begin{bmatrix}
+    		e^{0} & e^{-4} & e^{-4} & e^{-8} \\
+    		e^{-4} & e^{0} & e^{-8} & e^{-4} \\
+    		e^{-4} & e^{-8} & e^{0} & e^{-4} \\
+    		e^{-8} & e^{-4} & e^{-4} & e^{0} \\
+    		\end{bmatrix} $
+    		\par{The problem becomes:}
+    		\begin{align*}
+    		&\max_{\alpha_1, \alpha_2, \alpha_3, \alpha_4} [\alpha_1 + \alpha_2 + \alpha_3 + \alpha_4] - \frac{1}{2} [
+    		\begin{aligned}[t]
+    		& \alpha_1^2 - 2\alpha_1 \alpha_2 e^{-4} - 2\alpha_1 \alpha_3 e^{-4} + 2\alpha_1 \alpha_4 e^{-8} \\
+    		& +  \alpha_2^2 + 2\alpha_2 \alpha_3 e^{-8} - 2\alpha_2 \alpha_4 e^{-4} \\
+    		& +  \alpha_3^2 - 2\alpha_3 \alpha_4 e^{-4} \\
+    		& +  \alpha_4^2 ] \\
+    		\end{aligned} \\
+    		&
+    		\begin{aligned}
+    		(s.t.) \alpha_1 + \alpha_4 &= \alpha_2 + \alpha_3 \\
+    		\alpha_1, \alpha_2, \alpha_3, \alpha_4 &\ge 0.
+    		\end{aligned}
+    		\end{align*}
+    		\par{After taking partial derivatives and make them 0, we get:}
+    		\begin{align*}
+    		 \alpha_1 - \alpha_2 e^{-4} - \alpha_3 e^{-4} + \alpha_4 e^{-8} &= 1 \\
+    		-\alpha_1 e^{-4} +  \alpha_2 + \alpha_3 e^{-8} - \alpha_4 e^{-4} &= 1 \\
+    		- \alpha_1 e^{-4} + \alpha_2 e^{-8} +  \alpha_3 - \alpha_4 e^{-4} &= 1 \\
+    		\alpha_1 e^{-8} - \alpha_2 e^{-4} - \alpha_3 e^{-4} +  \alpha_4 &= 1 .
+    		\end{align*}
+    		\par{Thus, $ \alpha_1 = \alpha_2 = \alpha_3 = \alpha_4 = \frac{e^8}{(e^4 - 1)^2} $.}
+    		\par{$ \underline{w}.\underline{x} = \sum_{i=1}^m \alpha_i y^i K(\underline{x^i}, \underline{x}) =  \frac{e^8}{(e^4 - 1)^2}(-K(\underline{x}^1, \underline{x}) + K(\underline{x}^2, \underline{x}) + K(\underline{x}^3, \underline{x}) - K(\underline{x}^4, \underline{x}))$.}
+    		\par{Choosing $ \underline{x}^1 $ as the support vector, we get the bias value:}
+    		\[ b = y^1 - \underline{w}.\underline{x}^1 \approx -0.075326 \]
+    		\par{The classifier is:}
+    		\[ f(x) = sign(\frac{e^8}{(e^4 - 1)^2}(-K(\underline{x}^1, \underline{x}) + K(\underline{x}^2, \underline{x}) + K(\underline{x}^3, \underline{x}) - K(\underline{x}^4, \underline{x})) -0.075326) \]
+    	\end{itemize}
     \end{enumerate}
 \end{document}
