@@ -1,0 +1,74 @@
+\documentclass[letter, 12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{hyperref}
+\usepackage{algorithmic}
+\usepackage{eqparbox}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{forest}
+\usepackage{cite}
+
+\author{Shengjie Li}
+\title{CS 536 : Regression and Error}
+
+\pagestyle{fancy}
+\fancyhf{} 
+\lhead{Shengjie Li \\ netID: sl1560}
+\cfoot{\thepage} 
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headwidth}{\textwidth}
+\renewcommand\algorithmiccomment[1]{%
+    \hfill\#\ \eqparbox{COMMENT}{#1}%
+}
+\newlist{subquestion}{enumerate}{1}
+\setlist[subquestion, 1]{label = \alph*)}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength\parindent{0pt}
+
+% margin adjustment
+\addtolength{\textwidth}{1in}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\setlength\parindent{0cm}
+
+\begin{document}
+    \centerline{\textbf{CS 536 : Regression and Error}}
+    \par{Consider regression in one dimension, with a data set $ {(x_i , y_i )} _{i=1,\cdots,m} . $}
+    \begin{enumerate}
+    	\item{
+    		Find a linear model that minimizes the training error, i.e., $ \hat{w} $ and $ \hat{b} $ to minimize
+    		\[ \sum_{i=1}^{m}( \hat{w}x_i + \hat{b} - y_i )^2 . \]
+    	}
+    	\par{First, let $ \bar{x} = \frac{1}{m} \sum_{i=1}^{m} x_i, \bar{y} = \frac{1}{m} \sum_{i=1}^{m} y_i $.}
+    	\par{Calculating the partial derivatives and making them equal to zero, we get:}
+    	\begin{align}
+    		2 \sum_{i=1}^{m} x_i(\hat{w}x_i + \hat{b} - y_i) &= 2 \sum_{i=1}^{m} (\hat{w}x_i^2 + \hat{b}x_i - y_ix_i) = 0 \label{eq1}\\
+    		2 \sum_{i=1}^{m} (\hat{w}x_i + \hat{b} - y_i) &= 0 \label{eq2}
+    	\end{align}
+    	\par{Solving (\ref{eq2}), we can get:}
+    	\begin{align*}
+	    	(\ref{eq2}) &= \hat{w} m \bar{x}  + m \hat{b} -m \bar{y} = 0 \\
+	    	\hat{b} &= \bar{y} - \hat{w} \bar{x}
+    	\end{align*}
+    	\par{Put this into (\ref{eq1}), we can get:}
+    	\begin{align*}
+	    	(\ref{eq1}) &= \hat{w} \sum_{i=1}^{m} x_i^2 + \bar{y} \sum_{i=1}^{m} x_i - \hat{w} \bar{x} \sum_{i=1}^{m} x_i - \sum_{i=1}^{m} y_i x_i = 0 \\
+	    	\hat{w} &= \frac{\sum_{i=1}^{m} y_i x_i - \bar{y} \sum_{i=1}^{m} x_i}{\sum_{i=1}^{m} x_i^2 - \bar{x} \sum_{i=1}^{m} x_i} = \frac{\sum_{i=1}^{m} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{m} (x_i - \bar{x})^2} = \frac{\text{Cov}(x, y)}{\text{Var}(x)}
+    	\end{align*}
+    	\par{Thus, $ \hat{w} = \frac{\text{Cov}(x, y)}{\text{Var}(x)}, \hat{b} = \bar{y} - \hat{w} \bar{x} $}
+    \end{enumerate}
+\end{document}
