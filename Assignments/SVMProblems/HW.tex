@@ -129,7 +129,7 @@
     	\end{aligned}
     	\end{align*}
     	\begin{itemize}
-    		\item{$ K(x, y) = (1 + \underline{x}.\underline{y}) 2 $}
+    		\item{$ K(x, y) = (1 + \underline{x}.\underline{y})^ 2 $}
     		\par{}
     		$ K = \begin{bmatrix}
     		9 & 1 & 1 & 1 \\
@@ -203,5 +203,21 @@
     		\par{The classifier is:}
     		\[ f(x) = sign(\frac{e^8}{(e^4 - 1)^2}(-K(\underline{x}^1, \underline{x}) + K(\underline{x}^2, \underline{x}) + K(\underline{x}^3, \underline{x}) - K(\underline{x}^4, \underline{x})) -0.075326) \]
     	\end{itemize}
+    	\par{The regions for these two kernels are:}
+    	\begin{figure}[H]
+    		\begin{minipage}[b]{.49\textwidth}
+    			\includegraphics[width=\textwidth]{fig1.png}
+    			\caption{$ K(x, y) = (1 + \underline{x}.\underline{y})^ 2 $}
+    			\label{fig1}
+    		\end{minipage}
+	    	\begin{minipage}[b]{.49\textwidth}
+		    	\includegraphics[width=\textwidth]{fig2.png}
+		    	\caption{$ K(x, y) = exp(-||x - y||^2 ). $}
+		    	\label{fig2}
+		    \end{minipage}
+    		\centering
+    	\end{figure}
+    	\par{By calculating the margin of two classifiers, we would know which classifier is better.}
+    	\par{Also, from the Fig \ref{fig1} and Fig \ref{fig2}, we can tell SVM with $ K(x, y) = exp(-||x - y||^2 ). $ has a better margin.}
     \end{enumerate}
 \end{document}
