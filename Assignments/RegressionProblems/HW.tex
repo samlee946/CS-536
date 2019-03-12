@@ -53,6 +53,7 @@
     		Find a linear model that minimizes the training error, i.e., $ \hat{w} $ and $ \hat{b} $ to minimize
     		\[ \sum_{i=1}^{m}( \hat{w}x_i + \hat{b} - y_i )^2 . \]
     	}
+    	\par{\textbf{Solution 1:}}
     	\par{First, let $ \bar{x} = \frac{1}{m} \sum_{i=1}^{m} x_i, \bar{y} = \frac{1}{m} \sum_{i=1}^{m} y_i $.}
     	\par{Calculating the partial derivatives and making them equal to zero, we get:}
     	\begin{align}
@@ -70,5 +71,92 @@
 	    	\hat{w} &= \frac{\sum_{i=1}^{m} y_i x_i - \bar{y} \sum_{i=1}^{m} x_i}{\sum_{i=1}^{m} x_i^2 - \bar{x} \sum_{i=1}^{m} x_i} = \frac{\sum_{i=1}^{m} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{m} (x_i - \bar{x})^2} = \frac{\text{Cov}(x, y)}{\text{Var}(x)}
     	\end{align*}
     	\par{Thus, $ \hat{w} = \frac{\text{Cov}(x, y)}{\text{Var}(x)}, \hat{b} = \bar{y} - \hat{w} \bar{x} $}
+    	
+    	\item{
+    		Assume there is some true linear model, such that $ y_i = wx_i + b + \epsilon_i $, where noise variables $ \epsilon_i $ are i.i.d. with $ \epsilon_i \sim N (0, \sigma^2) $. Argue that the estimators are unbiased, i.e., $ \mathbb{E} [\hat{w}] = w $ and $ \mathbb{E}[\hat{b}] = b $. What are the variances of these estimators?
+    	}
+    	\par{\textbf{Solution:}}
+    	\begin{align*}
+    		\hat{w} &= \frac{\text{Cov}(x, y)}{\text{Var}(x)} \\
+    		&= \frac{\frac{1}{m}\sum_{i=1}^{m} y_i x_i - \bar{y} \bar{x}}{\text{Var}(x)} \\
+    		&= \frac{\frac{1}{m}\sum_{i=1}^{m} x_i (wx_i + b + \epsilon_i) -  \bar{x} (w\bar{x} + b + \bar{\epsilon})}{\text{Var}(x)} \\
+    		&= \frac{b \bar{x} + w \bar{x}^2 + \frac{1}{m}\sum_{i=1}^{m} x_i \epsilon_i - b \bar{x} - w\bar{x}^2 - \bar{\epsilon}\bar{x}}{\text{Var}(x)} \\
+    		&= \frac{w\text{Var}(x) + \frac{1}{m}\sum_{i=1}^{m} x_i \epsilon_i - \bar{\epsilon}\bar{x}}{\text{Var}(x)} \\
+    		&= w + \frac{\frac{1}{m}\sum_{i=1}^{m} x_i \epsilon_i - \bar{\epsilon}\bar{x}}{\text{Var}(x)} \\
+    		&= w + \frac{\frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})\epsilon_i}{\text{Var}(x)} \\
+    		\mathbb{E}[\hat{w}] &= \mathbb{E}[w + \frac{\frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})\epsilon_i}{\text{Var}(x)}] \\
+    		&= \mathbb{E}[w] + \mathbb{E}[\frac{\frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})\epsilon_i}{\text{Var}(x)}] \\
+    		&= \mathbb{E}[w] + \frac{\frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})\mathbb{E}[\epsilon_i]}{\text{Var}(x)} \\
+    		&= \mathbb{E}[w] \\
+    		\mathbb{E}[\hat{b}] &= \mathbb{E}[\bar{y} - \hat{w}\bar{x}] \\
+    		&= w\bar{x} + b - \mathbb{E}[\hat{w}]\bar{x} \\
+    		&= b
+    	\end{align*}
+    	\par{Thus, this estimators are unbiased.}
+    	\begin{align*}
+    		\text{Var}(\hat{w}) &= \text{Var}(w + \frac{\frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})\epsilon_i}{\text{Var}(x)}) \\
+    		&= \frac{\frac{1}{m^2}\sum_{i=1}^{m} (x_i - \bar{x})^2\text{Var}(\epsilon_i)}{\text{Var}(x)^2} \\
+    		&= \frac{\frac{\sigma^2}{m}\text{Var}(x)}{\text{Var}(x)^2} \\
+    		&= \frac{\sigma^2}{m\text{Var}(x)} \\
+    	\end{align*}
+    	\begin{align*}
+	    	\text{Var}(\hat{b}) &= \text{Var}(\bar{y} - \hat{w}\bar{x}) \\
+	    	&= \text{Var}(\bar{y}) - 2\text{Cov}(\bar{y}, \hat{w}) + \bar{x}^2\text{Var}(\hat{w}) \\
+	    	&= \frac{\sigma^2}{m} + \frac{\sigma^2\bar{x}^2}{m\text{Var}(x)} \\
+	    	&= \frac{\sigma^2(\text{Var}(x) + \bar{x}^2)}{m\text{Var}(x)} \\
+	    	&= \frac{\sigma^2(\sum_{i=1}^{m}(x_i - \bar{x})^2 + m\bar{x}^2)}{m^2\text{Var}(x)} \\
+	    	&= \frac{\sigma^2\sum_{i=1}^{m}x_i^2}{m^2\text{Var}(x)} \\
+	    	&= \frac{\sigma^2 \mathbb{E}[x_i^2]}{m\text{Var}(x)} \\
+    	\end{align*}
+    	
+    	\item{Assume that each x value was sampled from some underlying distribution with expectation $ \mathbb{E}[x] $ and variance Var$ (x) $. Argue that in the limit, the error on $ \hat{w} $ and $ \hat{b} $ are approximately 
+    		\[ \text{Var}(\hat{w}) \approx \frac{\sigma^2}{m\text{Var}(x)} \]
+    		\[ \text{Var}(\hat{b}) \approx \frac{\sigma^2 \mathbb{E}[x_i^2]}{m\text{Var}(x)} .\]
+    	}
+    	\par{\textbf{Solution:}}
+    	\par{In the limit, $ \bar{x} \approx \frac{1}{m} \sum_{i=1}^{m} x_i $.}
+    	\par{Thus it's pretty much the same as the results we have got on the previous question.}
+    	\par{Thus, \[ \text{Var}(\hat{w}) \approx \frac{\sigma^2}{m\text{Var}(x)} \]
+    		\[ \text{Var}(\hat{b}) \approx \frac{\sigma^2 \mathbb{E}[x_i^2]}{m\text{Var}(x)} .\]}
+    	
+    	\item{Argue that recentering the data ($ x'_i = x_i − \mu $) and doing regression on the re-centered data produces the
+    		same error on $ \hat{w} $ but minimizes the error on $ \hat{b} $ when $ \mu = \mathbb{E}[x] $ (which we approximate with the sample
+    		mean).}
+    	\par{\textbf{Solution:}}
+    	
+    	\item{Verify this numerically in the following way: Taking $ m = 200, w = 1, b = 5, \sigma^2 = 0.1 $.}
+    	\begin{itemize}
+    		\item Generate data
+    		\item Repeat 1000 times
+    	\end{itemize}
+    	\par{The results I got:}
+    	\begin{lstlisting}
+Expected values:
+w_hat: 1.00366823298
+b_hat: 4.63086915475
+w_prime_hat: 1.00366823298
+b_prime_hat: 106.001360686
+Variances:
+w_hat: 0.00161692791203
+b_hat: 16.494078242
+w_prime_hat: 0.00161692791203
+b_prime_hat: 0.000514062534213
+    	\end{lstlisting}
+    	\par{These results make sense to me.}
+    	
+    	\item{\textit{Intuitively, why is there no change in the estimate of the slope when the data is shifted?}}
+    	\par{\textbf{Solution:}}
+    	
+    	\item{Consider augmenting the data in the usual way, going from one dimensions to two dimensions, where the first coordinate of each $ \underline{x} $ is just a constant 1. Argue that taking $ \Sigma = X^T X $ in the usual way, we get in the limit that
+    	\[	\Sigma \rightarrow m
+    		\begin{bmatrix}
+    		1 & \mathbb{E}[x] \\
+    		\mathbb{E}[x] & \mathbb{E}[x^2]\\
+    		\end{bmatrix}
+    	\]
+    	Show that re-centering the data $ (\Sigma' = (X' )^T (X' ) $, taking $ x'_i = x_i − \mu) $, the condition number $ κ(\Sigma' ) $ is
+    	minimized taking $ \mu = \mathbb{E}[x] $.
+    	}
+    	\par{\textbf{Solution:}}
     \end{enumerate}
 \end{document}
