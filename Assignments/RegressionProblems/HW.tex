@@ -119,33 +119,118 @@
     	\par{Thus, \[ \text{Var}(\hat{w}) \approx \frac{\sigma^2}{m\text{Var}(x)} \]
     		\[ \text{Var}(\hat{b}) \approx \frac{\sigma^2 \mathbb{E}[x_i^2]}{m\text{Var}(x)} .\]}
     	
-    	\item{Argue that recentering the data ($ x'_i = x_i − \mu $) and doing regression on the re-centered data produces the
+    	\item{Argue that recentering the data ($ x'_i = x_i - \mu $) and doing regression on the re-centered data produces the
     		same error on $ \hat{w} $ but minimizes the error on $ \hat{b} $ when $ \mu = \mathbb{E}[x] $ (which we approximate with the sample
     		mean).}
     	\par{\textbf{Solution:}}
+    	\par{Because $ \hat{w} = \frac{\text{Cov}(x, y)}{\text{Var}(x)}$, recentering the data does not change the variance and covariance of the data, the value of $ \hat{w} $ would not change. }
+    	\par{But after recentering the data, the mean of the data $ \bar{x} $ becomes 0. Thus, $ \hat{b} = \bar{y} - \hat{w} \bar{x} = \bar{y}$, the value of $ \hat{b} $ becomes the minimum.}
     	
     	\item{Verify this numerically in the following way: Taking $ m = 200, w = 1, b = 5, \sigma^2 = 0.1 $.}
     	\begin{itemize}
     		\item Generate data
     		\item Repeat 1000 times
     	\end{itemize}
+    	\par{\textbf{Solution:}}
     	\par{The results I got:}
-    	\begin{lstlisting}
+    	\begin{lstlisting}[backgroundcolor = \color{lightgray}]
 Expected values:
-w_hat: 1.00366823298
-b_hat: 4.63086915475
-w_prime_hat: 1.00366823298
-b_prime_hat: 106.001360686
+w_hat: 1.00554097685
+b_hat: 4.44044450451
+w_prime_hat: 1.00554097685
+b_prime_hat: 106.000083166
 Variances:
-w_hat: 0.00161692791203
-b_hat: 16.494078242
-w_prime_hat: 0.00161692791203
-b_prime_hat: 0.000514062534213
+w_hat: 0.00144942426831
+b_hat: 14.7849690845
+w_prime_hat: 0.00144942426831
+b_prime_hat: 0.000496671293304
     	\end{lstlisting}
-    	\par{These results make sense to me.}
+    	\par{These results make sense to me. The expected values of $ \hat{w} $ is close to 1 and $ \hat{b} $ is close to 5. After shifting the data, the expected value of $ \hat{w} $ didn't change, while the expected value of $ \hat{b} $ shifted approximately 106 units upwards.}
+    	
+    	\begin{lstlisting}[backgroundcolor = \color{lightgray}]
+Theoretical values:
+w_hat: 1.00051327196
+b_hat: 4.94825203737
+w_prime_hat: 1.00051327196
+b_prime_hat: 106.000092506
+Theoretical variances:
+w_hat: 0.00143496626123
+b_hat: 14.6375769505
+w_prime_hat: 0.00143496626123
+b_prime_hat: 0.000496616357232
+    	\end{lstlisting}
+    	\par{By calculating the theoretical values, we can see the results are pretty close to the expected results. The theoretical values of $ \hat{w} $ and $ \hat{b} $ are closer to the actual values of $ w $ and $ b $ than that of the expected results.}
+    	
+    	\par{Python code:}
+    	\begin{minted}{python}
+import numpy as np
+
+def compute(x, y):
+    w = np.cov(x, y)[0][1] / np.var(x)
+    b = np.mean(y) - w * np.mean(x)
+    return w, b
+
+def question5(m = 200, w = 1, b = 5, sig_2 = 0.1):
+    repeat_times = 1000
+    w_hat_list = []
+    b_hat_list = []
+    w_prime_hat_list = []
+    b_prime_hat_list = []
+    w_the_hat_list = []
+    b_the_hat_list = []
+    w_prime_hat_the_list = []
+    b_prime_hat_the_list = []
+    for i in range(repeat_times):
+        sz = (1, m)
+        x = np.random.uniform(100, 102, sz)
+        eps = np.random.normal(0, np.sqrt(sig_2), sz)
+        y = w * x + b + eps
+        x_prime = x - 101
+        w_hat, b_hat = compute(x, y)
+        w_prime_hat, b_prime_hat = compute(x_prime, y)
+        w_hat_list.append(w_hat)
+        b_hat_list.append(b_hat)
+        w_prime_hat_list.append(w_prime_hat)
+        b_prime_hat_list.append(b_prime_hat)
+
+        w_the = w + np.sum((x - np.mean(x)) * eps) / m / np.var(x)
+        b_the = np.mean(y) - w_the * np.mean(x)
+        w_prime_the = w + np.sum((x_prime - np.mean(x_prime)) * eps) 
+		        / m / np.var(x_prime)
+        b_prime_the = np.mean(y) - w_the * np.mean(x_prime)
+        w_the_hat_list.append(w_the)
+        w_prime_hat_the_list.append(w_prime_the)
+        b_the_hat_list.append(b_the)
+        b_prime_hat_the_list.append(b_prime_the)
+    print('Expected values:')
+    print('w_hat: {}'.format(np.mean(w_hat_list)))
+    print('b_hat: {}'.format(np.mean(b_hat_list)))
+    print('w_prime_hat: {}'.format(np.mean(w_prime_hat_list)))
+    print('b_prime_hat: {}'.format(np.mean(b_prime_hat_list)))
+    print('Variances:')
+    print('w_hat: {}'.format(np.var(w_hat_list)))
+    print('b_hat: {}'.format(np.var(b_hat_list)))
+    print('w_prime_hat: {}'.format(np.var(w_prime_hat_list)))
+    print('b_prime_hat: {}'.format(np.var(b_prime_hat_list)))
+    print('Theoretical values:')
+    print('w_hat: {}'.format(np.mean(w_the_hat_list)))
+    print('b_hat: {}'.format(np.mean(b_the_hat_list)))
+    print('w_prime_hat: {}'.format(np.mean(w_prime_hat_the_list)))
+    print('b_prime_hat: {}'.format(np.mean(b_prime_hat_the_list)))
+    print('Theoretical variances:')
+    print('w_hat: {}'.format(np.var(w_the_hat_list)))
+    print('b_hat: {}'.format(np.var(b_the_hat_list)))
+    print('w_prime_hat: {}'.format(np.var(w_prime_hat_the_list)))
+    print('b_prime_hat: {}'.format(np.var(b_prime_hat_the_list)))
+    return
+
+if __name__ == '__main__':
+    question5()
+    	\end{minted}
     	
     	\item{\textit{Intuitively, why is there no change in the estimate of the slope when the data is shifted?}}
     	\par{\textbf{Solution:}}
+    	\par{Because we only shifted the data 101 units to the left, the classifier only needs to shift 101 units to the left as well. There's no need to change the slope.}
     	
     	\item{Consider augmenting the data in the usual way, going from one dimensions to two dimensions, where the first coordinate of each $ \underline{x} $ is just a constant 1. Argue that taking $ \Sigma = X^T X $ in the usual way, we get in the limit that
     	\[	\Sigma \rightarrow m
@@ -154,9 +239,50 @@ b_prime_hat: 0.000514062534213
     		\mathbb{E}[x] & \mathbb{E}[x^2]\\
     		\end{bmatrix}
     	\]
-    	Show that re-centering the data $ (\Sigma' = (X' )^T (X' ) $, taking $ x'_i = x_i − \mu) $, the condition number $ κ(\Sigma' ) $ is
+    	Show that re-centering the data $ (\Sigma' = (X' )^T (X' ) \text{, taking } x'_i = x_i - \mu) $, the condition number $ \kappa(\Sigma' ) $ is
     	minimized taking $ \mu = \mathbb{E}[x] $.
     	}
     	\par{\textbf{Solution:}}
+    	\begin{align*}
+    		\Sigma &= X^T X \\
+    		&= \begin{pmatrix}
+    		1 & 1 & \cdots \\
+    		x_1 & x_2 & \cdots 
+    		\end{pmatrix} 
+    		\begin{pmatrix}
+    		1 & x_1 & \cdots \\
+    		1 & x_2 & \cdots 
+    		\end{pmatrix} \\
+    		&= \sum_{i=1}^{m} 
+    		\begin{pmatrix}
+    		1 & x_i \\
+    		x_i & x_i^2
+    		\end{pmatrix} \\
+    		&\approx m
+    		\begin{pmatrix}
+    		1 & \mathbb{E}[x] \\
+    		\mathbb{E}[x] & \mathbb{E}[x^2]
+    		\end{pmatrix} 
+    	\end{align*}
+    	\par{The condition number is: }
+    	\begin{align*}
+    		\kappa(\Sigma') &= \kappa((X' )^T (X' )) \\
+    		&= ||(X' )^T (X' )|| \cdot ||((X' )^T (X' ))^{-1}|| \\
+    		&= ||(X' )^T (X' )|| \cdot ||((X' )^{-1}(X' )^{-T} )|| \\
+    		&\sim ||(X' )^T|| \cdot || (X' )|| \cdot ||(X' )^{-1}|| \cdot ||(X' )^{-T} || \\
+    		&\sim ||X'||^2 \cdot ||(X' )^{-1}||^2 \\
+    		&= \kappa(X')^2
+    	\end{align*}
+    	\par{That is, to find the value of $ \min_\mu ||X'||^2 $.}
+    	\begin{align*}
+    		 ||X'||^2 &= \sum_{i=1}^m (x_i - \mu)^2 \\
+    		 &= \sum_{i=1}^m (x_i^2 - 2\mu x_i + \mu^2) \\
+    		 &= (\sum_{i=1}^m x_i^2 - \sum_{i=1}^m 2\mu x_i + m \mu^2) \\
+    		 &= (\sum_{i=1}^m x_i^2 -  2 m \mu \bar{x} + m \mu^2) \\
+    		 \shortintertext{Computing the partial derivative and making it equal to zero.}
+    		 \nabla &= \sum_{i=1}^m (- 2m\bar{x} + 2m\mu) = 0\\
+    		 \mu &= \bar{x}
+    	\end{align*}
+    	\par{Thus, when $ \mu = \mathbb{E}[X'] $, the condition number has its minimal value.}
     \end{enumerate}
 \end{document}
