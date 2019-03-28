@@ -161,11 +161,25 @@ w = [[0.]
 	    \end{figure}
     	\par{There are several methods to verify if the data is linearly separable.}
     	\begin{enumerate}
-    		\item{If the data has intersecting convex hulls, then the data is not linearly separable \cite{holmes}. }
+    		\item{If the data has intersecting convex hulls, then the data is not linearly separable \cite{holmes}. But this is hard to tell if the data is high dimensional.}
     		\item{If the learning algorithm runs over a certain number of steps, then the data is not linearly separable.}
     	\end{enumerate}
    		\par{Since the data is only 2-dimensional, I am going to plot my data here.}
     	\par{As Fig \ref{q5} shows, there is clearly no linear separator that can separate this data. }
+    	\begin{figure}[H]
+    		\centering
+    		\includegraphics[width=\linewidth]{q5-2.png}
+    		\caption{The progression of weight vectors and bias values}
+    		\label{q5-2}
+    	\end{figure}
+    	\par{From the Fig \ref{q5-2} above we can see that the values are always swaying.}
+    	\par{I propose a heuristic:}
+    	\begin{enumerate}
+    		\item {Set the max epoch to be a large enough number, say 10000.}
+    		\item {Record the number of misclassified data points, say it's $ p $.}
+    		\item {Update max epoch as $ min(\textit{max\_epoch}, \textit{current\_epoch} + 2 * p) $}
+    	\end{enumerate}
+    	\par{If the program runs over the \textit{max\_epoch}, I would say there's no separator for the data.}
     \end{enumerate}
 
 	\bibliography{mybib}{}
