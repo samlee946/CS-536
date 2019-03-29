@@ -8,7 +8,7 @@ def naive_linear_regression(X, Y):
 
 def ridge_regression(X, Y, Lambda):
     Xt = X.transpose()
-    I = np.identity(21)
+    I = np.identity(X.shape[1])
     w = np.matmul(np.matmul(np.linalg.inv(np.matmul(Xt, X)+ Lambda * I), Xt), Y)
     return w
 
@@ -116,8 +116,13 @@ def plot_comparison_true_weights(w, true_weight, true_bias, filename1,
 
     get_true_error(100000, w)
 
-def get_true_error(n_data, w):
+def get_true_error(n_data, w, w_l = None):
     X, Y = get_data(n_data)[:2]
+    if w_l is not None:
+        for i in range(20, 0, -1):
+            if w_l[i] == 0:
+                #X = np.delete(X, i, 1)
+                X[:, i] = 0
     true_error = 0
     for i in range(n_data):
         prediction = np.matmul(X[i], w)
@@ -209,15 +214,51 @@ def question4(save = False):
     plt.savefig('q4-1.png')
     print('optimalLambda = {}, error = {}'.format(optimalLambda, min_error))
 
-def question42():
-    X, Y, true_weight, true_bias = get_data(1000)
-    w = lasso_regression(X, Y, 17.4)
-    plot_comparison_true_weights(w, true_weight, true_bias, 'q4-2.png',
+    plot_comparison_true_weights(optimal_w, true_weight, true_bias, 'q4-2.png',
                                  'q4-3.png')
+
+def question5(save = False):
+    X_raw, Y, true_weight, true_bias = get_data(1000)
+    w_l = lasso_regression(X_raw, Y, 17.4)
+    X = X_raw
+    for i in range(20, 0, -1):
+        if w_l[i] == 0:
+            #X = np.delete(X, i, 1)
+            X[:, i] = 0
+    #print(X.shape)
+
+    repeat_times = 10
+    min_error = float('inf')
+    optimalLambda = None
+    optimal_w = None
+
+    lambdas = np.arange(0.05, 5, 0.05)
+    errors = []
+    for Lambda in lambdas:
+        error = 0
+        w = ridge_regression(X, Y, Lambda)
+        for i in range(repeat_times):
+            error += get_true_error(10000, w, w_l)
+        error /= 1.0 * repeat_times
+        errors.append(error)
+        if error < min_error:
+            min_error = error
+            optimalLambda = Lambda
+            optimal_w = w
+
+    plt.plot(lambdas, errors)
+    plt.xlabel('Lamdba')
+    plt.ylabel('True Error')
+    #plt.show()
+    plt.savefig('q5-1.png')
+    print('optimalLambda = {}, error = {}'.format(optimalLambda, min_error))
+
+    plot_comparison_true_weights(optimal_w, true_weight, true_bias, 'q5-2.png',
+                                 'q5-3.png')
 
 if __name__ == '__main__':
     #question1(save = True)
     #question2(save = False)
     #question3(save = False)
     #question4(save = False)
-    question42()
+    question5()

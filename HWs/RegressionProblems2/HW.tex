@@ -51,7 +51,7 @@
     \begin{enumerate}
     	\item {}
     	\par{As fig. \ref{fig:q1-1} and \ref{fig:q1-2} shows, the weights and bias of the model I got were pretty close to the true weights and bias. But there was still some noise in the weights of my model.}
-    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_{11} $ as the least significant feature. Due to the insufficient of the data, my model concluded $ x_{11} $ as the least significant feature. When the size of data set becomes 100,000, the weights of my model are shown in fig. \ref{fig:q1-3}, which are indeed pretty close to the true weights.}
+    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_{19} $ as the least significant feature. Due to the insufficient of the data, my model concluded $ x_{19} $ as the least significant feature. When the size of data set becomes 100,000, the weights of my model are shown in fig. \ref{fig:q1-3}, which are indeed pretty close to the true weights.}
     	\par{When $ m = 100,000 $, the `true' error I got was 0.10375875.}
     	\begin{figure}[H]
     		\centering
@@ -79,7 +79,7 @@
     	\item {}
     	\par{As fig. \ref{fig:q2-1} shows, the optimal $ \lambda $ is 0.05, which yields an optimal error of 0.10415862.}
     	\par{As fig. \ref{fig:q2-2} and \ref{fig:q2-3} shows, the bias of the model I got was pretty close to the true bias. But the weights were not really ideal, because it should have pruned some features. There's still some space for improvement.}
-    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_{11} $ as the least significant feature. Due to the insufficient of the data, my model concluded $ x_{11} $ as the least significant feature. When the size of data set becomes 100,000, the weights of my model are shown in fig. \ref{fig:q2-4}, which are indeed pretty close to the true weights.}
+    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_{18} $ as the least significant feature. Due to the insufficient of the data, my model concluded $ x_{18} $ as the least significant feature. When the size of data set becomes 100,000, the weights of my model are shown in fig. \ref{fig:q2-4}, which are indeed pretty close to the true weights.}
     	\par{When $ m = 1000 $, the model I got using ridge regression was somehow similar to that of naive linear regression, but have smaller weights.}
     	\begin{figure}[H]
     		\centering
@@ -124,8 +124,8 @@
     	\item {}
     	\par{As fig. \ref{fig:q4-1} shows, the optimal $ \lambda $ is 17.4, which yields an optimal error of 0.09864528.}
     	\par{As fig. \ref{fig:q4-2} and \ref{fig:q4-3} shows, the bias of the model I got was pretty close to the true bias. Most of the weights were close to the true weights, especially weights for those unrelated features. But there are still some strange behaviors for $ x_4, x_5, x_{11}, x_{12}, x_{13} $.}
-    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_{11} $ as the least significant feature. Due to the insufficient of the data, my model concluded $ x_{11} $ as the least significant feature. When the size of data set becomes 100,000, the weights of my model are shown in fig. \ref{fig:q2-4}, which are indeed pretty close to the true weights.}
-    	\par{When $ m = 1000 $, the model I got using ridge regression was somehow similar to that of naive linear regression, but have smaller weights.}
+    	\par{My model concluded $ x_1 $ as the most significant feature, and $ x_4, x_{11}, x_{16}, x_{17}, x_{18}, x_{19}, x_{20} $ as the least significant features as their weights were 0. }
+    	\par{When $ m = 1000 $, the model I got using lasso regression was actually worse than the naive model (In my opinion), despite the lasso model eliminated many features.}
     	\begin{figure}[H]
     		\centering
     		\centering
@@ -148,7 +148,33 @@
     			\label{fig:q4-3}
     		\end{minipage}
     	\end{figure}
+    
     	\item {}
+    	\par{I also used brute-force to find the best ridge regression regularization constant. As fig \ref{fig:q5-1}. shows, the best constant I found was 0.05.}
+    	\par{As fig. \ref{fig:q5-2} and \ref{fig:q5-3} shows, the weights of the model were not as close to the true weights as that of naive model did. }
+    	\par{My model concluded $ x_1 $ as the most significant feature, but it also concluded that $ x_{2}, x_{15} $ were significant. The least significant features were $ x_4, x_{11}, x_{16}, x_{17}, x_{18}, x_{19}, x_{20} $ as their weights were 0. }
+    	\par{The testing error of lasso-ridge combination model was 0.10367449. Compared with the results of naive model, the lasso-ridge combination model was actually worse.}
+    	\begin{figure}[H]
+    		\centering
+    		\centering
+    		\includegraphics[width=0.7\linewidth]{q5-1.png}
+    		\caption{True errors vs lambdas.}
+    		\label{fig:q5-1}
+    	\end{figure}
+    	\begin{figure}[H]
+    		\centering
+    		\begin{minipage}{.48\textwidth}
+    			\centering
+    			\includegraphics[width=\linewidth]{q5-2.png}
+    			\caption{Comparison of true weights and the weights of model.}
+    			\label{fig:q5-2}
+    		\end{minipage}
+    		\begin{minipage}{.48\textwidth}
+    			\centering
+    			\includegraphics[width=\linewidth]{q5-3.png}
+    			\caption{Comparison of true bias and the bias of model.}
+    			\label{fig:q5-3}
+    		\end{minipage}
+    	\end{figure}
     \end{enumerate}
-    \section{SVMs}
 \end{document}
